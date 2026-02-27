@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Home Goods: Analytics Strategy Simulation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; padding: 20px; max-width: 740px; margin: 0 auto; }
+  h1 { font-size: 1.3rem; color: #297496; border-bottom: 2px solid #62b6d0; padding-bottom: 8px; margin-bottom: 16px; }
+  h2 { font-size: 1rem; color: #297496; margin-bottom: 8px; }
+  p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; color: #1E556E; }
+  .dashboard { background: #1E556E; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dashboard h2 { color: #C6EFFC; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; grid-column: 1 / -1; }
+  .dash-item { background: rgba(255,255,255,0.1); border-radius: 4px; padding: 8px 10px; }
+  .dash-label { font-size: 0.72rem; color: #C6EFFC; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .dash-value { font-size: 0.95rem; color: #fff; font-weight: bold; transition: color 0.4s; }
+  .dash-value.up { color: #62b6d0; }
+  .dash-value.down { color: #f9c5bf; }
+  .progress-bar { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; }
+  .progress-label { font-size: 0.78rem; color: #62b6d0; margin-right: 4px; white-space: nowrap; }
+  .pip { width: 28px; height: 8px; border-radius: 4px; background: #E5E4E4; transition: background 0.3s; }
+  .pip.done { background: #297496; }
+  .pip.active { background: #62b6d0; }
+  .scene-card { background: #fff; border: 1px solid #C4E4ED; border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+  .scene-label { font-size: 0.75rem; color: #62b6d0; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .scene-text { font-size: 0.9rem; line-height: 1.7; color: #1E556E; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .choice-btn { background: #fff; border: 2px solid #C4E4ED; border-radius: 6px; padding: 12px 14px; text-align: left; font-size: 0.88rem; line-height: 1.5; color: #1E556E; cursor: pointer; transition: all 0.2s; font-family: Georgia, serif; }
+  .choice-btn:hover:not(:disabled) { border-color: #297496; background: #f0f8fc; }
+  .choice-btn.selected-good { border-color: #297496; background: #e6f2f7; }
+  .choice-btn.selected-neutral { border-color: #62b6d0; background: #dff0f7; }
+  .choice-btn.selected-bad { border-color: #922E1F; background: #f9e8e6; }
+  .choice-btn:disabled { cursor: default; }
+  .feedback-box { font-size: 0.85rem; line-height: 1.6; padding: 12px 14px; border-radius: 4px; margin-bottom: 12px; display: none; }
+  .feedback-box p { font-size: 0.85rem; margin-bottom: 8px; }
+  .feedback-box p:last-child { margin-bottom: 0; }
+  .feedback-good { background: #e6f2f7; border-left: 3px solid #297496; }
+  .feedback-neutral { background: #dff0f7; border-left: 3px solid #62b6d0; }
+  .feedback-bad { background: #f9e8e6; border-left: 3px solid #922E1F; }
+  .btn-next { padding: 10px 24px; background: #297496; color: #fff; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; display: none; font-family: Georgia, serif; }
+  .btn-next:hover { background: #1E556E; }
+  .intro-box { background: #fff; border: 1px solid #C4E4ED; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; }
+  .btn-start { display: block; width: 100%; padding: 12px; background: #297496; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background 0.2s; font-family: Georgia, serif; }
+  .btn-start:hover { background: #1E556E; }
+  #outcome { display: none; border-radius: 6px; padding: 20px; border: 2px solid; margin-top: 8px; }
+  .outcome-stabilize { background: #e6f2f7; border-color: #297496; }
+  .outcome-survive { background: #dff0f7; border-color: #62b6d0; }
+  .outcome-decline { background: #f9e8e6; border-color: #922E1F; }
+  #outcome h2 { font-size: 1.1rem; margin-bottom: 10px; }
+  .outcome-stabilize h2, .outcome-survive h2 { color: #297496; }
+  .outcome-decline h2 { color: #922E1F; }
+  .outcome-narrative { font-style: italic; background: #fff; border-radius: 4px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid #C4E4ED; font-size: 0.9rem; line-height: 1.7; color: #1E556E; }
+  .outcome-section h3 { font-size: 0.9rem; color: #297496; margin-bottom: 6px; margin-top: 12px; }
+  .outcome-section ul { padding-left: 45px; font-size: 0.88rem; line-height: 1.8; color: #1E556E; }
+  .btn-retry { display: inline-block; margin-top: 14px; padding: 10px 24px; background: #297496; color: #fff; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; font-family: Georgia, serif; }
+  .btn-retry:hover { background: #1E556E; }
+</style>
+</head>
+<body>
+
+<div id="intro">
+  <h1>Meridian Home Goods: Analytics Strategy Simulation</h1>
+  <p>Meridian Home Goods has dominated regional retail for 15 years. Today their CEO hands you a single page: sales down 12%, foot traffic down 18%, and three months before the board meets to discuss the future of the business.</p>
+  <p>"We have $150,000 for an analytics initiative," she says. "I need to know where to spend it."</p>
+  <div class="intro-box">
+    <h2>Your Role</h2>
+    <p>You are Meridian's analytics consultant. You have four decisions to make. Each one will affect the company's market share, staff confidence, and analytics readiness. Apply the Value Chain and VRIO frameworks to guide your choices.</p>
+  </div>
+  <button class="btn-start" onclick="startGame()">Begin the Simulation</button>
+</div>
+
+<div id="dashboard" style="display:none">
+  <div class="dashboard" aria-label="Meridian Company Dashboard">
+    <h2>Meridian Dashboard</h2>
+    <div class="dash-item"><div class="dash-label">Market Share</div><div class="dash-value" id="d-market">73%</div></div>
+    <div class="dash-item"><div class="dash-label">Budget Remaining</div><div class="dash-value" id="d-budget">$150,000</div></div>
+    <div class="dash-item"><div class="dash-label">Staff Confidence</div><div class="dash-value" id="d-staff">Low</div></div>
+    <div class="dash-item"><div class="dash-label">Analytics Readiness</div><div class="dash-value" id="d-analytics">Unknown</div></div>
+  </div>
+</div>
+
+<div id="game" style="display:none">
+  <div class="progress-bar" aria-label="Simulation progress">
+    <span class="progress-label">Decision:</span>
+    <div class="pip" id="pip1"></div>
+    <div class="pip" id="pip2"></div>
+    <div class="pip" id="pip3"></div>
+    <div class="pip" id="pip4"></div>
+  </div>
+  <div class="scene-card">
+    <div class="scene-label" id="scene-label"></div>
+    <div class="scene-text" id="scene-text"></div>
+  </div>
+  <div class="choices" id="choices" role="group" aria-label="Your decision options"></div>
+  <div class="feedback-box" id="feedback-box"></div>
+  <button class="btn-next" id="btn-next">Continue</button>
+</div>
+
+<div id="outcome" aria-live="polite">
+  <h2 id="outcome-title"></h2>
+  <div class="outcome-narrative" id="outcome-narrative"></div>
+  <div id="dashboard-final"></div>
+  <div class="outcome-section">
+    <h3 id="strengths-title" style="display:none">What Worked</h3>
+    <ul id="outcome-strengths"></ul>
+  </div>
+  <div class="outcome-section">
+    <h3 id="improve-title" style="display:none">What to Work On</h3>
+    <ul id="outcome-improve"></ul>
+  </div>
+  <button class="btn-retry" onclick="resetGame()">Try Again</button>
+</div>
+
+<script>
+let step = 0, score = 0, poorChoices = 0, path = 'A';
+let dashboard = { market: 73, budget: 150000, staff: 'Low', analytics: 'Unknown' };
+let shuffledScenes = [];
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const scenes = [
+  {
+    label: 'Decision 1 of 4: Where Do You Start?',
+    text: 'The CEO has given you three months and $150,000. Before spending a single dollar, you need to know where to focus. How do you begin your analysis?',
+    choices: [
+      { text: 'Map Meridian\'s value chain to identify their strongest activities, then apply VRIO to determine which ones could create lasting advantage.', quality: 'good', reveal: 'Your analysis surfaces something surprising. Meridian\'s in-store conversion rate is 34%—nearly double the industry average. Their staff knows customers by name and has built deep local relationships over 15 years. There is also a large customer transaction database that nobody is using.', feedback: 'Strong start. Beginning with the Value Chain lets you find existing strengths before spending anything. You\'ve already discovered a potential competitive advantage.', dashUpdate: { staff: 'Medium', analytics: 'Promising' }, nextPath: 'A' },
+      { text: 'Pull sales data and look for the activities with the biggest performance gaps.', quality: 'neutral', reveal: 'The data tells a discouraging story. Online sales are near zero. Fulfillment takes five days. Pricing is 8% above Amazon on comparable products. Every gap points toward online—an area where Meridian has no existing capability or advantage.', feedback: 'Focusing on gaps is a natural instinct but a strategic trap. Every gap you found points toward competing with Amazon, where Meridian has no foundation. You\'ve spent time and framing on the wrong problem.', dashUpdate: { budget: 130000, staff: 'Low' }, nextPath: 'B' },
+      { text: 'Benchmark Meridian against Amazon and identify where they\'re furthest behind.', quality: 'bad', reveal: 'The benchmarking report is thorough and deeply demoralizing. Meridian loses on price, speed, and selection across every category. The CEO asks: "So we\'re just worse at everything?" The room deflates. You\'ve spent $20,000 and morale has dropped.', feedback: 'Benchmarking against a competitor with fundamentally different capabilities and scale set a demoralizing frame from the start. You\'ve also burned budget and goodwill before identifying a single strength to build on.', dashUpdate: { budget: 120000, staff: 'Low', market: 72 }, nextPath: 'C' }
+    ]
+  },
+  {
+    label: 'Decision 2 of 4: What Do You Do Next?',
+    textByPath: { A: 'Your Value Chain analysis has revealed that Meridian\'s in-store experience is their strongest activity by far. A 34% conversion rate, deep customer relationships, and 15 years of local knowledge. But nobody is capturing that knowledge systematically. What do you do next?', B: 'The performance gap analysis has left the team focused on online, where Meridian is weakest. The CEO is worried. You have $130,000 left. Before recommending anything, you realize you may be looking in the wrong direction. What do you do?', C: 'The benchmarking report has the team demoralized. You have $120,000 left and a deflated room. The CEO is waiting for a recommendation. How do you recover?' },
+    choices: [
+      { text: 'Apply VRIO to the in-store experience before recommending anything—test whether it\'s valuable, rare, inimitable, and organized.', quality: 'good', reveal: 'VRIO confirms what you suspected. The in-store experience is valuable (34% conversion rate proves it), rare (no regional competitor comes close), and potentially inimitable (built on years of staff relationships). But it fails the final test: the organization isn\'t capturing or using customer knowledge systematically. This is an unused competitive advantage.', feedback: 'Exactly right. Applying VRIO before spending budget gives you a strategic foundation for your recommendation. You\'ve identified an unused competitive advantage.', dashUpdate: { analytics: 'High Potential', staff: 'Medium' }, nextPath: 'A' },
+      { text: 'Recommend investing immediately in customer relationship software to capture staff knowledge.', quality: 'neutral', reveal: 'The recommendation makes intuitive sense but lacks strategic grounding. Without VRIO analysis, you can\'t explain why this investment creates lasting advantage rather than just operational improvement. The CEO approves a scaled-back version. Budget drops to $90,000.', feedback: 'You identified the right area but skipped the analytical step that would have made your recommendation compelling. A good instinct without a strategic framework is hard to defend.', dashUpdate: { budget: 90000, analytics: 'Partial' }, nextPath: 'A' },
+      { text: 'Conclude the in-store advantage is too soft to measure and pivot to building an e-commerce platform.', quality: 'bad', reveal: 'The pivot drains budget and demoralizes staff who take pride in their customer relationships. Meridian begins spending on digital infrastructure it has no capability to operate. Market share continues to slide.', feedback: 'Dismissing a 34% conversion rate as "too soft to measure" is a significant analytical error. Relationship-based advantages are inimitable precisely because they\'re hard to quantify—that\'s a strength, not a weakness.', dashUpdate: { budget: 80000, market: 71, staff: 'Low', analytics: 'Misaligned' }, nextPath: 'B' }
+    ]
+  },
+  {
+    label: 'Decision 3 of 4: The Strategic Recommendation',
+    text: 'VRIO analysis has confirmed that Meridian\'s in-store experience is valuable, rare, and hard to copy—but the organization isn\'t using customer data systematically. Staff have years of customer knowledge in their heads that disappears when they leave. What do you recommend?',
+    choices: [
+      { text: 'Recommend an analytics initiative that helps staff capture and use existing customer data to personalize the in-store experience, turning an unused competitive advantage into a sustained one.', quality: 'good', reveal: 'The recommendation lands well. You\'ve connected the analytics investment directly to a VRIO-validated advantage and explained why it creates lasting value. The CEO nods. "This is the first recommendation that actually sounds like us."', feedback: 'This is textbook strategic analytics. You\'ve identified where analytics creates the most competitive impact—not where the gaps are biggest, but where existing strengths can be strengthened further.', dashUpdate: { analytics: 'Active', staff: 'High' }, nextPath: 'A' },
+      { text: 'Recommend splitting the budget—half for in-store analytics, half for an e-commerce pilot to hedge against online competition.', quality: 'neutral', reveal: 'The split budget funds two initiatives neither of which is fully resourced. The in-store analytics project launches at reduced scope. The e-commerce pilot produces limited results. Progress is made but the strategy lacks conviction.', feedback: 'Hedging is understandable but strategically weak. Half-funded initiatives rarely create meaningful advantage. The best analytics investments concentrate resources where VRIO-validated advantages already exist.', dashUpdate: { budget: 75000, analytics: 'Partial' }, nextPath: 'B' },
+      { text: 'Recommend cutting costs across all value chain activities to improve margins and buy time.', quality: 'bad', reveal: 'Cost-cutting deactivates the very capabilities that make Meridian competitive. Staff are reduced. Customer relationships suffer. The conversion rate begins to drop. You\'ve optimized costs at the expense of the company\'s only real advantage.', feedback: 'Cost-cutting across the board is the opposite of a VRIO-informed strategy. It treats all activities as equal when the whole point of the framework is to identify which activities are worth protecting.', dashUpdate: { market: 70, staff: 'Low', analytics: 'None', budget: 150000 }, nextPath: 'C' }
+    ]
+  },
+  {
+    label: 'Decision 4 of 4: The CEO\'s Challenge',
+    text: 'The CEO leans forward. "Every other consultant I\'ve talked to says Meridian needs to be online. You\'re telling me something different. Why should I trust this over the conventional wisdom?"',
+    choices: [
+      { text: '"Competing on Amazon\'s terms means competing on cost and speed—areas where Meridian has no VRIO-validated advantage. Every dollar spent chasing Amazon is a dollar not spent widening an advantage competitors can\'t copy. The in-store experience is what Meridian actually owns."', quality: 'good', reveal: 'The CEO pauses, then: "Nobody has said it quite like that before." She approves the full initiative.', feedback: 'You\'ve used VRIO not just to identify an advantage but to defend a strategic choice under pressure. This is what makes analytics strategy different from analytics reporting.', dashUpdate: { market: 75, staff: 'High', analytics: 'Active' }, nextPath: 'A' },
+      { text: '"E-commerce is important long-term, but Meridian doesn\'t have the budget to do both well right now. We should start where we have the strongest foundation."', quality: 'neutral', reveal: 'The CEO accepts the logic but isn\'t fully convinced. "Fine, but I want a plan for online within 12 months." The initiative moves forward at reduced scope.', feedback: 'A reasonable answer but a missed opportunity. Framing it as a budget constraint rather than a strategic choice leaves the door open for conventional wisdom to win later.', dashUpdate: { market: 73, analytics: 'Partial' }, nextPath: 'B' },
+      { text: 'Agree that e-commerce is the right priority and pivot your recommendation accordingly.', quality: 'bad', reveal: 'You\'ve abandoned a VRIO-validated recommendation under pressure. The e-commerce initiative launches underfunded and without strategic foundation. Six months later, the results are poor.', feedback: 'Caving to conventional wisdom when you have a stronger analytical argument is the opposite of evidence-based decision making. The frameworks existed to defend this recommendation.', dashUpdate: { market: 69, staff: 'Low', analytics: 'Misaligned', budget: 50000 }, nextPath: 'C' }
+    ]
+  }
+];
+
+function buildShuffledScenes() {
+  shuffledScenes = scenes.map(s => ({ ...s, choices: shuffle(s.choices) }));
+}
+
+function startGame() {
+  buildShuffledScenes();
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('game').style.display = 'block';
+  renderStep();
+}
+
+function renderStep() {
+  if (step >= shuffledScenes.length) { showOutcome(); return; }
+  updateProgress();
+  const s = shuffledScenes[step];
+  document.getElementById('scene-label').textContent = s.label;
+  document.getElementById('scene-text').textContent = s.textByPath ? s.textByPath[path] : s.text;
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  s.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.setAttribute('aria-label', 'Option ' + (i + 1));
+    btn.onclick = () => selectChoice(i);
+    choicesEl.appendChild(btn);
+  });
+  const fb = document.getElementById('feedback-box');
+  fb.innerHTML = '';
+  fb.style.display = 'none';
+  fb.className = 'feedback-box';
+  document.getElementById('btn-next').style.display = 'none';
+}
+
+function selectChoice(i) {
+  const s = shuffledScenes[step];
+  const choice = s.choices[i];
+  document.querySelectorAll('.choice-btn').forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === i) btn.classList.add('selected-' + (choice.quality === 'good' ? 'good' : choice.quality === 'neutral' ? 'neutral' : 'bad'));
+  });
+  const pts = choice.quality === 'good' ? 2 : choice.quality === 'neutral' ? 1 : 0;
+  score += pts;
+  if (choice.quality === 'bad') poorChoices++;
+  if (choice.nextPath) path = choice.nextPath;
+  updateDashboard(choice.dashUpdate);
+  const fb = document.getElementById('feedback-box');
+  fb.innerHTML = '<p><strong>What happened:</strong> ' + choice.reveal + '</p><p><strong>Strategic insight:</strong> ' + choice.feedback + '</p>';
+  fb.className = 'feedback-box feedback-' + (choice.quality === 'good' ? 'good' : choice.quality === 'neutral' ? 'neutral' : 'bad');
+  fb.style.display = 'block';
+  const btn = document.getElementById('btn-next');
+  btn.style.display = 'inline-block';
+  if (poorChoices >= 2 && step < 3) {
+    btn.textContent = 'See What Happened';
+    btn.onclick = () => showOutcome(true);
+  } else {
+    btn.textContent = step < shuffledScenes.length - 1 ? 'Next Decision' : 'See the Outcome';
+    btn.onclick = () => { step++; renderStep(); };
+  }
+}
+
+function updateDashboard(updates) {
+  if (!updates) return;
+  if (updates.market !== undefined) {
+    const el = document.getElementById('d-market');
+    const prev = dashboard.market;
+    dashboard.market = updates.market;
+    el.textContent = dashboard.market + '%';
+    el.className = 'dash-value ' + (dashboard.market > prev ? 'up' : dashboard.market < prev ? 'down' : '');
+  }
+  if (updates.budget !== undefined) {
+    dashboard.budget = updates.budget;
+    document.getElementById('d-budget').textContent = '$' + dashboard.budget.toLocaleString();
+    document.getElementById('d-budget').className = 'dash-value ' + (dashboard.budget < 150000 ? 'down' : '');
+  }
+  if (updates.staff !== undefined) {
+    dashboard.staff = updates.staff;
+    const el = document.getElementById('d-staff');
+    el.textContent = dashboard.staff;
+    el.className = 'dash-value ' + (dashboard.staff === 'High' ? 'up' : dashboard.staff === 'Low' ? 'down' : '');
+  }
+  if (updates.analytics !== undefined) {
+    dashboard.analytics = updates.analytics;
+    const el = document.getElementById('d-analytics');
+    el.textContent = dashboard.analytics;
+    el.className = 'dash-value ' + (dashboard.analytics === 'Active' ? 'up' : (dashboard.analytics === 'None' || dashboard.analytics === 'Misaligned') ? 'down' : '');
+  }
+}
+
+function updateProgress() {
+  for (let i = 1; i <= 4; i++) {
+    const pip = document.getElementById('pip' + i);
+    pip.className = 'pip';
+    if (i - 1 < step) pip.classList.add('done');
+    else if (i - 1 === step) pip.classList.add('active');
+  }
+}
+
+function showOutcome(earlyLoss) {
+  document.getElementById('game').style.display = 'none';
+  const outcomeEl = document.getElementById('outcome');
+  let title, narrative, strengths = [], improve = [], cssClass;
+  if (earlyLoss || score <= 2) {
+    title = 'Meridian Continues to Decline';
+    narrative = 'By chasing competitors rather than strengthening existing advantages, Meridian spent its limited budget where it had no strategic foundation. Staff morale collapsed as the initiatives ignored their core strengths. The board meeting is difficult. The CEO asks for a new consultant.';
+    cssClass = 'outcome-decline';
+    improve = ['Start with the Value Chain to find existing strengths before identifying gaps', 'Apply VRIO before recommending any analytics investment', 'Defend VRIO-validated recommendations even when conventional wisdom pushes back'];
+  } else if (score >= 6) {
+    title = 'Meridian Stabilizes';
+    narrative = 'Six months later, Meridian\'s staff are using a simple customer dashboard at point of sale. Repeat visit rate is up 22%. The in-store experience—already their strongest asset—is now systematically measured, improved, and nearly impossible for competitors to replicate. Market share has ticked up for the first time in two years. The board meeting goes well.';
+    cssClass = 'outcome-stabilize';
+    strengths = ['Used the Value Chain to find existing strengths before focusing on gaps', 'Applied VRIO to confirm the in-store experience as a sustainable competitive advantage', 'Recommended analytics investment that organized an existing unused advantage', 'Defended a VRIO-informed strategy against conventional wisdom under pressure'];
+  } else {
+    title = 'Meridian Survives';
+    narrative = 'Meridian made some progress but the strategy lacked coherence. Resources were split between strengthening existing advantages and chasing competitors. The in-store analytics initiative launched at reduced scope and produced modest results. The business is stable but remains vulnerable. The board asks for a clearer plan.';
+    cssClass = 'outcome-survive';
+    strengths = ['Identified the in-store experience as a strategic opportunity and moved toward an analytics recommendation'];
+    improve = ['Apply VRIO rigorously before committing budget to any initiative', 'Concentrate resources on VRIO-validated advantages rather than splitting between competing priorities', 'Frame strategic recommendations in terms of competitive risk, not just operational improvement'];
+  }
+  outcomeEl.className = cssClass;
+  outcomeEl.style.display = 'block';
+  document.getElementById('outcome-title').textContent = title;
+  document.getElementById('outcome-narrative').textContent = narrative;
+  document.getElementById('dashboard-final').innerHTML = '<div style="background:#1E556E;border-radius:6px;padding:12px 14px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="grid-column:1/-1;font-size:0.75rem;color:#C6EFFC;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Final Dashboard</div><div style="background:rgba(255,255,255,0.1);border-radius:4px;padding:8px 10px;"><div style="font-size:0.7rem;color:#C6EFFC;margin-bottom:2px;">Market Share</div><div style="color:#fff;font-weight:bold;">' + dashboard.market + '%</div></div><div style="background:rgba(255,255,255,0.1);border-radius:4px;padding:8px 10px;"><div style="font-size:0.7rem;color:#C6EFFC;margin-bottom:2px;">Budget Remaining</div><div style="color:#fff;font-weight:bold;">$' + dashboard.budget.toLocaleString() + '</div></div><div style="background:rgba(255,255,255,0.1);border-radius:4px;padding:8px 10px;"><div style="font-size:0.7rem;color:#C6EFFC;margin-bottom:2px;">Staff Confidence</div><div style="color:#fff;font-weight:bold;">' + dashboard.staff + '</div></div><div style="background:rgba(255,255,255,0.1);border-radius:4px;padding:8px 10px;"><div style="font-size:0.7rem;color:#C6EFFC;margin-bottom:2px;">Analytics Readiness</div><div style="color:#fff;font-weight:bold;">' + dashboard.analytics + '</div></div></div>';
+  const strengthsEl = document.getElementById('outcome-strengths');
+  const strengthsTitle = document.getElementById('strengths-title');
+  if (strengths.length > 0) { strengthsEl.innerHTML = strengths.map(s => '<li>' + s + '</li>').join(''); strengthsTitle.style.display = 'block'; } else { strengthsTitle.style.display = 'none'; }
+  const improveEl = document.getElementById('outcome-improve');
+  const improveTitle = document.getElementById('improve-title');
+  if (improve.length > 0) { improveEl.innerHTML = improve.map(s => '<li>' + s + '</li>').join(''); improveTitle.style.display = 'block'; } else { improveTitle.style.display = 'none'; }
+  outcomeEl.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetGame() {
+  step = 0; score = 0; poorChoices = 0; path = 'A';
+  dashboard = { market: 73, budget: 150000, staff: 'Low', analytics: 'Unknown' };
+  ['d-market','d-budget','d-staff','d-analytics'].forEach(id => document.getElementById(id).className = 'dash-value');
+  document.getElementById('d-market').textContent = '73%';
+  document.getElementById('d-budget').textContent = '$150,000';
+  document.getElementById('d-staff').textContent = 'Low';
+  document.getElementById('d-analytics').textContent = 'Unknown';
+  document.getElementById('outcome').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('intro').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
