@@ -13,7 +13,10 @@
   h1 { font-size: 1.3rem; color: #297496; text-align: center; margin-bottom: 6px; }
   .subtitle { text-align: center; font-size: 0.85rem; color: #62b6d0; margin-bottom: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: start; }
+  .card { height: 100%; display: flex; flex-direction: column; }
+  .card-body { flex: 1; display: flex; flex-direction: column; }
+  .card-body ul { flex: 1; }
 
   .card { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
   .card-header { padding: 14px 16px; text-align: center; }
@@ -94,7 +97,7 @@
 
 <div class="lesson" role="note" aria-label="The Strategic Lesson">
   <strong>The Strategic Lesson</strong>
-  Both approaches work — but they require completely different analytics capabilities. Your analytics strategy must align with your competitive strategy.
+  Both approaches work—but they require completely different analytics capabilities. Your analytics strategy must align with your competitive strategy.
 </div>
 
 </body>
