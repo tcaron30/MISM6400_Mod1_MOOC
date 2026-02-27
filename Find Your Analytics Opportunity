@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Turn: Find Your Analytics Opportunity</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; padding: 20px; }
+  h1 { font-size: 1.4rem; color: #297496; border-bottom: 2px solid #62b6d0; padding-bottom: 8px; margin-bottom: 16px; }
+  p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px; color: #1E556E; }
+  label { display: block; font-size: 0.9rem; font-weight: bold; color: #297496; margin-bottom: 5px; }
+  input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #62b6d0; border-radius: 4px; font-size: 0.9rem; color: #1E556E; background: #fff; margin-bottom: 12px; }
+  textarea { resize: vertical; min-height: 70px; }
+  .section { background: #fff; border: 1px solid #C4E4ED; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+  .section h2 { font-size: 1rem; color: #297496; margin-bottom: 10px; }
+  .activity-row { display: flex; align-items: center; gap:10px; margin-bottom: 8px; }
+  .activity-row input[type="text"] { flex: 1; margin-bottom: 0; }
+  .toggle-btn { border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; transition: background 0.2s; }
+  .star-btn { background: #E2E3E4; color: #1E556E; }
+  .star-btn.active { background: #297496; color: #fff; }
+  .circle-btn { background: #E2E3E4; color: #1E556E; }
+  .circle-btn.active { background: #62b6d0; color: #fff; }
+  .btn-submit { display: block; width: 100%; padding: 12px; background: #297496; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; margin-top: 6px; transition: background 0.2s; }
+  .btn-submit:hover { background: #1E556E; }
+  .feedback { display: none; background: #C6EFFC; border: 1px solid #62b6d0; border-radius: 6px; padding: 16px; margin-top: 16px; }
+  .feedback h2 { color: #297496; font-size: 1rem; margin-bottom: 10px; }
+  .feedback ul { padding-left: 20px; font-size: 0.9rem; line-height: 1.8; color: #1E556E; }
+  .feedback .highlight { background: #297496; color: #fff; border-radius: 4px; padding: 10px 14px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; }
+  .note { font-size: 0.8rem; color: #b3b6b7; margin-top: -8px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<h1>Your Turn: Find Your Analytics Opportunity</h1>
+
+<p>Pick a company you know well—your employer, a brand you use regularly, or a local business. You're going to do in 5 minutes what Toys"R"Us never did well enough: identify where data could protect and strengthen a competitive position.</p>
+
+<div class="section">
+  <h2>What Company Are You Analyzing?</h2>
+  <input type="text" id="company" placeholder="e.g., my employer, Starbucks, a local gym...">
+</div>
+
+<div class="section">
+  <h2>Step 1: List Three Important Business Activities</h2>
+  <p>What does this company actually do to deliver value to customers?</p>
+  <div id="activities">
+    <div class="activity-row">
+      <input type="text" placeholder="e.g., marketing to customers">
+      <button class="toggle-btn star-btn" onclick="toggle(this, 'star')" title="Mark as competitive strength">★ Strength</button>
+      <button class="toggle-btn circle-btn" onclick="toggle(this, 'circle')" title="Mark as analytics opportunity">⬤ Data</button>
+    </div>
+    <div class="activity-row">
+      <input type="text" placeholder="e.g., managing inventory">
+      <button class="toggle-btn star-btn" onclick="toggle(this, 'star')" title="Mark as competitive strength">★ Strength</button>
+      <button class="toggle-btn circle-btn" onclick="toggle(this, 'circle')" title="Mark as analytics opportunity">⬤ Data</button>
+    </div>
+    <div class="activity-row">
+      <input type="text" placeholder="e.g., delivering orders">
+      <button class="toggle-btn star-btn" onclick="toggle(this, 'star')" title="Mark as competitive strength">★ Strength</button>
+      <button class="toggle-btn circle-btn" onclick="toggle(this, 'circle')" title="Mark as analytics opportunity">⬤ Data</button>
+    </div>
+  </div>
+  <p class="note">★ Strength = this company does it better than competitors &nbsp;|&nbsp; ⬤ Data = better data could improve this activity</p>
+</div>
+
+<button class="btn-submit" onclick="showFeedback()">See My Analytics Opportunities</button>
+
+<div class="feedback" id="feedback">
+  <h2>Your Analysis</h2>
+  <div id="feedback-content"></div>
+  <div class="highlight">
+    Hold on to this analysis. In the next lesson, you'll learn the Value Chain framework—a systematic tool that makes exactly this kind of thinking more rigorous and powerful. You'll see how companies like Walmart and Apple use it to decide where analytics investments pay off most.
+  </div>
+</div>
+
+<script>
+function toggle(btn, type) {
+  btn.classList.toggle('active');
+}
+
+function showFeedback() {
+  const company = document.getElementById('company').value.trim() || 'Your company';
+  const rows = document.querySelectorAll('.activity-row');
+  const strengths = [], dataOpps = [], overlaps = [];
+
+  rows.forEach(row => {
+    const txt = row.querySelector('input').value.trim();
+    if (!txt) return;
+    const isStar = row.querySelector('.star-btn').classList.contains('active');
+    const isCircle = row.querySelector('.circle-btn').classList.contains('active');
+    if (isStar && isCircle) overlaps.push(txt);
+    else if (isStar) strengths.push(txt);
+    else if (isCircle) dataOpps.push(txt);
+  });
+
+  let html = '';
+
+  if (overlaps.length > 0) {
+    html += '<p><strong>Prime analytics opportunities for ' + company + ':</strong></p><ul>';
+    overlaps.forEach(a => html += '<li>' + a + '—a competitive strength where better data could widen the advantage</li>');
+    html += '</ul>';
+  } else if (strengths.length === 0 && dataOpps.length === 0) {
+    html += '<p>Fill in at least one activity and mark it as a strength or data opportunity to see your results.</p>';
+  } else {
+    html += '<p>No overlap found yet. Try marking some activities as both a strength <strong>and</strong> a data opportunity—those overlaps are your highest-value analytics targets.</p>';
+    if (strengths.length > 0) {
+      html += '<p><strong>Strengths identified:</strong></p><ul>';
+      strengths.forEach(a => html += '<li>' + a + '</li>');
+      html += '</ul>';
+    }
+    if (dataOpps.length > 0) {
+      html += '<p style="margin-top:8px"><strong>Data opportunities identified:</strong></p><ul>';
+      dataOpps.forEach(a => html += '<li>' + a + '</li>');
+      html += '</ul>';
+    }
+  }
+
+  document.getElementById('feedback-content').innerHTML = html;
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  fb.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
