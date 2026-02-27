@@ -64,16 +64,8 @@
 
 <h1>VRIO Analysis</h1>
 
-<p>Go back to the company you analyzed earlier and pick one of the competitive strengths you identified. You're going to test whether that strength can create lasting advantage or just a temporary edge.</p>
-
 <div class="section">
-  <h2>Step 1: Describe Your Capability</h2>
-  <input type="text" id="capability" placeholder="e.g., McDonald's can open new locations faster than any competitor">
-  <p class="hint">Describe it in one sentence—be as specific as you can.</p>
-</div>
-
-<div class="section">
-  <h2>Step 2: Test Each VRIO Criterion</h2>
+  <h2>Test Each VRIO Criterion</h2>
   <div id="criteria">
 
     <div class="criterion">
@@ -148,7 +140,6 @@ function select(btn, criterion, value) {
 }
 
 function showResult() {
-  const capability = document.getElementById('capability').value.trim() || 'This capability';
   const keys = ['valuable', 'rare', 'inimitable', 'organized'];
   const unanswered = keys.filter(k => answers[k] === null);
 
