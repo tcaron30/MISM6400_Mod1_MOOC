@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VRIO Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; padding: 20px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+  h1 { font-size: 1.3rem; color: #297496; border-bottom: 2px solid #62b6d0; padding-bottom: 8px; margin-bottom: 16px; }
+  p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px; color: #1E556E; }
+
+  .section { background: #fff; border: 1px solid #C4E4ED; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+  .section h2 { font-size: 1rem; color: #297496; margin-bottom: 10px; }
+
+  input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #62b6d0; border-radius: 4px; font-size: 0.9rem; color: #1E556E; background: #fff; margin-bottom: 4px; }
+  .hint { font-size: 0.8rem; color: #b3b6b7; margin-bottom: 0; }
+
+  .criterion { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E5E4E4; }
+  .criterion:last-child { border-bottom: none; }
+  .criterion-text { flex: 1; }
+  .criterion-text strong { display: block; font-size: 0.9rem; color: #297496; margin-bottom: 3px; }
+  .criterion-text span { font-size: 0.85rem; color: #1E556E; }
+  .btn-group { display: flex; gap: 6px; flex-shrink: 0; }
+  .yn-btn { border: 2px solid #62b6d0; border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem; background: #fff; color: #1E556E; transition: all 0.2s; }
+  .yn-btn.yes.active { background: #297496; border-color: #297496; color: #fff; }
+  .yn-btn.no.active { background: #922E1F; border-color: #922E1F; color: #fff; }
+
+  .btn-submit { display: block; width: 100%; padding: 12px; background: #297496; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; margin-top: 6px; transition: background 0.2s; }
+  .btn-submit:hover { background: #1E556E; }
+
+  .feedback { display: none; border-radius: 6px; padding: 16px; margin-top: 16px; }
+  .feedback h2 { font-size: 1rem; margin-bottom: 10px; }
+  .feedback p { font-size: 0.9rem; margin-bottom: 8px; }
+
+  .result-sustained { background: #297496; color: #fff; }
+  .result-sustained h2 { color: #C6EFFC; }
+  .result-temporary { background: #62b6d0; color: #fff; }
+  .result-temporary h2 { color: #fff; }
+  .result-parity { background: #E5E4E4; color: #1E556E; }
+  .result-parity h2 { color: #297496; }
+  .result-disadvantage { background: #922E1F; color: #fff; }
+  .result-disadvantage h2 { color: #fff; }
+  .result-incomplete { background: #C6EFFC; color: #1E556E; }
+  .result-incomplete h2 { color: #297496; }
+
+  .score-bar { display: flex; gap: 4px; margin: 10px 0; }
+  .score-pip { width: 24px; height: 24px; border-radius: 4px; }
+  .pip-yes { background: #C6EFFC; }
+  .pip-no { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); }
+  .pip-yes-dark { background: rgba(255,255,255,0.9); }
+
+  .highlight-box { background: rgba(255,255,255,0.15); border-radius: 4px; padding: 10px 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6; }
+  .highlight-box-light { background: #fff; border: 1px solid #62b6d0; border-radius: 4px; padding: 10px 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6; color: #1E556E; }
+</style>
+</head>
+<body>
+
+<h1>VRIO Analysis</h1>
+
+<p>Go back to the company you analyzed earlier and pick one of the competitive strengths you identified. You're going to test whether that strength can create lasting advantage or just a temporary edge.</p>
+
+<div class="section">
+  <h2>Step 1: Describe Your Capability</h2>
+  <input type="text" id="capability" placeholder="e.g., McDonald's can open new locations faster than any competitor">
+  <p class="hint">Describe it in one sentence — be as specific as you can.</p>
+</div>
+
+<div class="section">
+  <h2>Step 2: Test Each VRIO Criterion</h2>
+  <div id="criteria">
+
+    <div class="criterion">
+      <div class="criterion-text">
+        <strong>Valuable</strong>
+        <span>Does this capability clearly help customers or reduce costs?</span>
+      </div>
+      <div class="btn-group" role="group" aria-label="Valuable: Yes or No">
+        <button class="yn-btn yes" onclick="select(this, 'valuable', 'yes')" aria-pressed="false">Yes</button>
+        <button class="yn-btn no" onclick="select(this, 'valuable', 'no')" aria-pressed="false">No</button>
+      </div>
+    </div>
+
+    <div class="criterion">
+      <div class="criterion-text">
+        <strong>Rare</strong>
+        <span>Do most competitors lack this capability?</span>
+      </div>
+      <div class="btn-group" role="group" aria-label="Rare: Yes or No">
+        <button class="yn-btn yes" onclick="select(this, 'rare', 'yes')" aria-pressed="false">Yes</button>
+        <button class="yn-btn no" onclick="select(this, 'rare', 'no')" aria-pressed="false">No</button>
+      </div>
+    </div>
+
+    <div class="criterion">
+      <div class="criterion-text">
+        <strong>Inimitable</strong>
+        <span>Would it take competitors years to copy this?</span>
+      </div>
+      <div class="btn-group" role="group" aria-label="Inimitable: Yes or No">
+        <button class="yn-btn yes" onclick="select(this, 'inimitable', 'yes')" aria-pressed="false">Yes</button>
+        <button class="yn-btn no" onclick="select(this, 'inimitable', 'no')" aria-pressed="false">No</button>
+      </div>
+    </div>
+
+    <div class="criterion">
+      <div class="criterion-text">
+        <strong>Organized</strong>
+        <span>Does the company have systems to fully use this strength?</span>
+      </div>
+      <div class="btn-group" role="group" aria-label="Organized: Yes or No">
+        <button class="yn-btn yes" onclick="select(this, 'organized', 'yes')" aria-pressed="false">Yes</button>
+        <button class="yn-btn no" onclick="select(this, 'organized', 'no')" aria-pressed="false">No</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button class="btn-submit" onclick="showResult()">Evaluate My Capability</button>
+
+<div class="feedback" id="feedback" role="region" aria-live="polite">
+  <h2 id="result-title"></h2>
+  <div id="result-score" class="score-bar" aria-hidden="true"></div>
+  <p id="result-capability"></p>
+  <p id="result-description"></p>
+  <div id="result-action" class="highlight-box"></div>
+</div>
+
+<script>
+const answers = { valuable: null, rare: null, inimitable: null, organized: null };
+
+function select(btn, criterion, value) {
+  const group = btn.closest('.btn-group');
+  group.querySelectorAll('.yn-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
+  answers[criterion] = value;
+}
+
+function showResult() {
+  const capability = document.getElementById('capability').value.trim() || 'This capability';
+  const keys = ['valuable', 'rare', 'inimitable', 'organized'];
+  const unanswered = keys.filter(k => answers[k] === null);
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+
+  if (unanswered.length > 0) {
+    fb.classList.add('result-incomplete');
+    document.getElementById('result-title').textContent = 'Almost There';
+    document.getElementById('result-score').innerHTML = '';
+    document.getElementById('result-capability').textContent = '';
+    document.getElementById('result-description').textContent = 'Please answer all four criteria before evaluating.';
+    document.getElementById('result-action').className = 'highlight-box-light';
+    document.getElementById('result-action').textContent = '';
+    fb.style.display = 'block';
+    fb.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const yesCount = keys.filter(k => answers[k] === 'yes').length;
+
+  // Score pips
+  let pips = '';
+  keys.forEach(k => {
+    const isDark = answers[k] === 'yes';
+    pips += `<div class="score-pip ${isDark ? 'pip-yes-dark' : 'pip-no'}" title="${k}: ${answers[k]}"></div>`;
+  });
+  document.getElementById('result-score').innerHTML = pips;
+  document.getElementById('result-capability').innerHTML = `<strong>Capability evaluated:</strong> ${capability}`;
+
+  let title, description, action, cssClass;
+
+  if (answers.valuable === 'no') {
+    title = 'Competitive Disadvantage';
+    description = 'A capability that doesn\'t help customers or reduce costs isn\'t creating value — and may actually be draining resources. This is worth reconsidering entirely.';
+    action = 'Analytics investment here is unlikely to pay off. Focus resources on capabilities that actually create value first.';
+    cssClass = 'result-disadvantage';
+  } else if (answers.rare === 'no') {
+    title = 'Competitive Parity';
+    description = 'This capability is valuable but widely shared among competitors. It\'s a table stake — necessary to compete, but not a source of advantage.';
+    action = 'Analytics can help you execute this capability more efficiently, but don\'t expect it to create differentiation. Look for rarer capabilities to invest in.';
+    cssClass = 'result-parity';
+  } else if (answers.inimitable === 'no') {
+    title = 'Temporary Competitive Advantage';
+    description = 'This capability is valuable and rare right now — but competitors can copy it. You have a window of advantage, but it won\'t last without investment.';
+    action = 'Analytics can help you widen your lead while the advantage lasts, and may help make the capability harder to imitate over time.';
+    cssClass = 'result-temporary';
+  } else if (answers.organized === 'no') {
+    title = 'Unused Competitive Advantage';
+    description = 'You have something valuable, rare, and hard to copy — but the organization isn\'t set up to fully exploit it. This is a significant missed opportunity.';
+    action = 'This is where analytics can have the biggest impact. Better data and processes could unlock an advantage your competitors can\'t replicate.';
+    cssClass = 'result-temporary';
+  } else {
+    title = 'Sustained Competitive Advantage';
+    description = 'This capability passes all four VRIO tests. It\'s valuable, rare, hard to copy, and your organization is set up to exploit it fully. This is the kind of advantage worth protecting and strengthening.';
+    action = 'Analytics invested here will compound over time. Strengthening an already-sustained advantage widens the gap between you and competitors in ways that are increasingly hard to close.';
+    cssClass = 'result-sustained';
+  }
+
+  fb.classList.add(cssClass);
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-description').textContent = description;
+  const actionBox = document.getElementById('result-action');
+  actionBox.className = cssClass === 'result-parity' ? 'highlight-box-light' : 'highlight-box';
+  actionBox.innerHTML = `<strong>Analytics implication:</strong> ${action}`;
+  fb.style.display = 'block';
+  fb.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
