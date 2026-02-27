@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Paths to Analytics Success</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; padding: 20px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+  h1 { font-size: 1.3rem; color: #297496; text-align: center; margin-bottom: 6px; }
+  .subtitle { text-align: center; font-size: 0.85rem; color: #62b6d0; margin-bottom: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .card { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .card-header { padding: 14px 16px; text-align: center; }
+  .card-header.walmart { background: #1E556E; }
+  .card-header.spotify { background: #297496; }
+  .card-header h2 { font-size: 1rem; color: #fff; margin-bottom: 2px; }
+  .card-header .strategy { font-size: 0.75rem; color: #C6EFFC; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .card-body { background: #fff; padding: 14px 16px; border: 1px solid #C4E4ED; border-top: none; border-radius: 0 0 8px 8px; }
+  .card-body .focus { font-size: 0.8rem; font-weight: bold; color: #297496; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+  .item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.85rem; line-height: 1.4; color: #1E556E; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .dot.walmart { background: #1E556E; }
+  .dot.spotify { background: #62b6d0; }
+
+  .result { margin-top: 12px; padding: 10px 12px; border-radius: 4px; font-size: 0.85rem; line-height: 1.5; }
+  .result.walmart { background: #1E556E; color: #fff; }
+  .result.spotify { background: #C6EFFC; color: #1E556E; }
+  .result strong { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .result.walmart strong { color: #C6EFFC; }
+  .result.spotify strong { color: #297496; }
+
+  .lesson { background: #297496; color: #fff; border-radius: 8px; padding: 14px 18px; font-size: 0.9rem; line-height: 1.6; text-align: center; }
+  .lesson strong { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #C6EFFC; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Two Paths to Analytics Success</h1>
+<p class="subtitle">Same goal, different strategies</p>
+
+<p class="sr-only">This comparison shows two companies — Walmart and Spotify — that use analytics to create competitive advantage through different strategies. Walmart focuses on cost leadership through operational efficiency. Spotify focuses on differentiation through personalized experience.</p>
+
+<div class="grid" role="list">
+
+  <article class="card" role="listitem" aria-label="Walmart: Cost Leadership strategy">
+    <div class="card-header walmart">
+      <h2>Walmart</h2>
+      <div class="strategy" aria-label="Strategy: Cost Leadership">Cost Leadership</div>
+    </div>
+    <div class="card-body">
+      <p class="focus" aria-label="Analytics focus: Operational Efficiency">Analytics Focus: Operational Efficiency</p>
+      <ul style="list-style:none; padding:0; margin-left:45px;">
+        <li class="item"><span class="dot walmart" aria-hidden="true"></span><span><strong>Inbound Logistics:</strong> Inventory optimization balances costs against stockout risks</span></li>
+        <li class="item"><span class="dot walmart" aria-hidden="true"></span><span><strong>Operations:</strong> Supply chain analytics coordinate 10,500+ stores with minimal waste</span></li>
+        <li class="item"><span class="dot walmart" aria-hidden="true"></span><span><strong>Outbound Logistics:</strong> Route optimization reduces distribution costs</span></li>
+        <li class="item"><span class="dot walmart" aria-hidden="true"></span><span><strong>Procurement:</strong> Supplier analytics drive bulk purchasing power</span></li>
+      </ul>
+      <div class="result walmart" role="note" aria-label="Walmart result">
+        <strong>Result</strong>
+        "Everyday Low Prices" supported by the world's most efficient retail operations
+      </div>
+    </div>
+  </article>
+
+  <article class="card" role="listitem" aria-label="Spotify: Differentiation strategy">
+    <div class="card-header spotify">
+      <h2>Spotify</h2>
+      <div class="strategy" aria-label="Strategy: Differentiation">Differentiation</div>
+    </div>
+    <div class="card-body">
+      <p class="focus" aria-label="Analytics focus: Personalized Experience">Analytics Focus: Personalized Experience</p>
+      <ul style="list-style:none; padding:0; margin-left:45px;">
+        <li class="item"><span class="dot spotify" aria-hidden="true"></span><span><strong>Product Development:</strong> Listening behavior powers Discover Weekly and Daily Mixes</span></li>
+        <li class="item"><span class="dot spotify" aria-hidden="true"></span><span><strong>Marketing:</strong> Personalized playlists keep users engaged longer than competitors</span></li>
+        <li class="item"><span class="dot spotify" aria-hidden="true"></span><span><strong>Content Strategy:</strong> Data informs which podcasts and artists to invest in</span></li>
+        <li class="item"><span class="dot spotify" aria-hidden="true"></span><span><strong>Retention:</strong> Behavioral signals identify at-risk users before they cancel</span></li>
+      </ul>
+      <div class="result spotify" role="note" aria-label="Spotify result">
+        <strong>Result</strong>
+        Premium pricing justified by a personalized experience that feels irreplaceable
+      </div>
+    </div>
+  </article>
+
+</div>
+
+<div class="lesson" role="note" aria-label="The Strategic Lesson">
+  <strong>The Strategic Lesson</strong>
+  Both approaches work — but they require completely different analytics capabilities. Your analytics strategy must align with your competitive strategy.
+</div>
+
+</body>
+</html>
