@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fix This Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; font-size: 16px; line-height: 1.6; }
+  .container { max-width: 680px; margin: 0 auto; padding: 32px 24px; }
+  .progress-bar { height: 6px; background: #C4E4ED; border-radius: 3px; margin-bottom: 8px; }
+  .progress-fill { height: 6px; background: #297496; border-radius: 3px; transition: width 0.4s ease; }
+  .progress-label { font-size: 12px; color: #1E556E; margin-bottom: 24px; }
+  .subtitle { font-size: 12px; color: #1E556E; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .card { background: #fff; border: 1px solid #C4E4ED; border-radius: 8px; padding: 20px 22px; }
+  .metric-name { font-size: 16px; font-weight: bold; color: #1E556E; margin-bottom: 4px; }
+  .metric-value { font-size: 13px; color: #1E556E; margin-bottom: 16px; font-style: italic; }
+  .diag-label { font-size: 14px; color: #1E556E; margin-bottom: 10px; }
+  .diag-options { display: flex; flex-direction: column; gap: 8px; }
+  .diag-btn { background: #f5f9fb; border: 1px solid #C4E4ED; border-radius: 6px; padding: 11px 14px; font-size: 14px; color: #1E556E; cursor: pointer; text-align: left; font-family: Georgia, serif; transition: background 0.2s, border-color 0.2s; line-height: 1.5; }
+  .diag-btn:hover:not(:disabled) { background: #C6EFFC; border-color: #62b6d0; }
+  .diag-btn.correct { background: #d4f0e0; border-color: #2e7d52; color: #1a4d30; font-weight: bold; }
+  .diag-btn.incorrect { background: #fde8e6; border-color: #7a1c12; color: #7a1c12; }
+  .diag-btn:disabled { cursor: default; }
+  .feedback { font-size: 14px; color: #1E556E; margin-top: 14px; padding: 12px 14px; border-radius: 0 6px 6px 0; border: none; border-left: 4px solid #297496; background: #EAF6FB; display: none; line-height: 1.6; }
+  .feedback.show { display: block; }
+  .next-btn { background: #297496; color: #fff; border: none; border-radius: 6px; padding: 12px 28px; font-size: 15px; cursor: pointer; font-family: Georgia, serif; transition: background 0.2s; margin-top: 20px; display: none; }
+  .next-btn:hover { background: #1E556E; }
+  .summary-item { background: #fff; border: 1px solid #C4E4ED; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+  .sum-metric { font-size: 15px; font-weight: bold; color: #297496; margin-bottom: 4px; }
+  .sum-problem { font-size: 13px; color: #7a1c12; font-weight: bold; margin-bottom: 6px; }
+  .sum-fix { font-size: 14px; color: #1E556E; line-height: 1.6; }
+  .closing { background: #f5f9fb; border: 1px solid #C4E4ED; border-radius: 8px; padding: 20px; margin-top: 8px; font-size: 14px; color: #1E556E; line-height: 1.7; }
+  .closing strong { color: #297496; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Q1 -->
+  <div class="screen active" id="s-q1">
+    <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+    <p class="progress-label">Metric 1 of 4</p>
+    <div class="card">
+      <div class="metric-name">Total website visitors</div>
+      <div class="metric-value">↑ 2.3 million this month, up 18% year over year</div>
+      <div class="diag-label">What's the problem with this metric?</div>
+      <div class="diag-options">
+        <button class="diag-btn" onclick="pick(this,'q1',false)">The sample size is too small to be meaningful</button>
+        <button class="diag-btn" onclick="pick(this,'q1',true)">More visitors doesn't mean more customers. It says nothing about what they did after arriving.</button>
+        <button class="diag-btn" onclick="pick(this,'q1',false)">The growth rate should be compared to competitors before drawing conclusions</button>
+      </div>
+      <div class="feedback" id="fb-q1"></div>
+    </div>
+    <button class="next-btn" id="next-q1" onclick="goTo('s-q2')">Next Metric →</button>
+  </div>
+
+  <!-- Q2 -->
+  <div class="screen" id="s-q2">
+    <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
+    <p class="progress-label">Metric 2 of 4</p>
+    <div class="card">
+      <div class="metric-name">Social media followers</div>
+      <div class="metric-value">↑ 450,000 followers, up 22% this quarter</div>
+      <div class="diag-label">What's the problem with this metric?</div>
+      <div class="diag-options">
+        <button class="diag-btn" onclick="pick(this,'q2',false)">Follower counts are difficult to track accurately</button>
+        <button class="diag-btn" onclick="pick(this,'q2',false)">The platform algorithm could inflate this number artificially</button>
+        <button class="diag-btn" onclick="pick(this,'q2',true)">Followers don't buy products. This metric has no clear connection to revenue or retention.</button>
+      </div>
+      <div class="feedback" id="fb-q2"></div>
+    </div>
+    <button class="next-btn" id="next-q2" onclick="goTo('s-q3')">Next Metric →</button>
+  </div>
+
+  <!-- Q3 -->
+  <div class="screen" id="s-q3">
+    <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+    <p class="progress-label">Metric 3 of 4</p>
+    <div class="card">
+      <div class="metric-name">Number of transactions</div>
+      <div class="metric-value">↑ 84,000 transactions this month, up 5% from last month</div>
+      <div class="diag-label">What's the problem with this metric?</div>
+      <div class="diag-options">
+        <button class="diag-btn" onclick="pick(this,'q3',false)">5% growth is too slow to indicate a healthy business</button>
+        <button class="diag-btn" onclick="pick(this,'q3',true)">Transaction volume without context doesn't tell you whether the business is healthy. Are these profitable? Repeat customers or one-time buyers?</button>
+        <button class="diag-btn" onclick="pick(this,'q3',false)">This metric should be broken down by product category to be useful</button>
+      </div>
+      <div class="feedback" id="fb-q3"></div>
+    </div>
+    <button class="next-btn" id="next-q3" onclick="goTo('s-q4')">Next Metric →</button>
+  </div>
+
+  <!-- Q4 -->
+  <div class="screen" id="s-q4">
+    <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+    <p class="progress-label">Metric 4 of 4</p>
+    <div class="card">
+      <div class="metric-name">Total revenue</div>
+      <div class="metric-value">↑ $4.2 million this quarter, up 9% year over year</div>
+      <div class="diag-label">What's the problem with this metric?</div>
+      <div class="diag-options">
+        <button class="diag-btn" onclick="pick(this,'q4',false)">Revenue should always be measured monthly, not quarterly</button>
+        <button class="diag-btn" onclick="pick(this,'q4',false)">9% growth is below the industry benchmark for e-commerce</button>
+        <button class="diag-btn" onclick="pick(this,'q4',true)">Revenue without context hides what's really happening. Costs, margins, and customer acquisition costs could all be getting worse while revenue climbs.</button>
+      </div>
+      <div class="feedback" id="fb-q4"></div>
+    </div>
+    <button class="next-btn" id="next-q4" onclick="goTo('s-summary')">See the Full Picture →</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="screen" id="s-summary">
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <p class="progress-label" style="margin-bottom:20px;">Complete</p>
+    <div class="summary-item">
+      <div class="sum-metric">Total website visitors</div>
+      <div class="sum-problem">Problem: volume without behavior</div>
+      <div class="sum-fix">Visitors mean nothing if they leave without buying. A better metric: shopping cart abandonment rate or conversion rate. Both tell you what visitors actually did.</div>
+    </div>
+    <div class="summary-item">
+      <div class="sum-metric">Social media followers</div>
+      <div class="sum-problem">Problem: no connection to business outcomes</div>
+      <div class="sum-fix">Follower counts feel impressive but don't drive revenue or retention. A better metric: customer acquisition cost from social channels. Did those followers become customers?</div>
+    </div>
+    <div class="summary-item">
+      <div class="sum-metric">Number of transactions</div>
+      <div class="sum-problem">Problem: volume without context</div>
+      <div class="sum-fix">More transactions could mean growth, or it could mean heavy discounting and one-time buyers. A better metric: repeat purchase rate within 90 days. It tells you whether customers are coming back.</div>
+    </div>
+    <div class="summary-item">
+      <div class="sum-metric">Total revenue</div>
+      <div class="sum-problem">Problem: a lagging indicator with no actionability</div>
+      <div class="sum-fix">Revenue can climb while the business deteriorates. A better metric: customer lifetime value. It connects revenue to the long-term health of the customer relationship.</div>
+    </div>
+    <div class="closing">
+      <strong>The pattern:</strong> Every metric on ShopFlow's dashboard measured volume or output. None of them measured quality, behavior, or what customers would do next. A dashboard full of numbers that only go up isn't useful. The metrics that matter are the ones that tell you when something is wrong before it shows up in revenue.
+    </div>
+  </div>
+
+</div>
+<script>
+  const feedback = {
+    q1: '✓ Traffic is a vanity metric without behavioral context. 2.3 million visitors who leave immediately are worse than 500,000 who convert. What matters is what visitors did, not that they arrived.',
+    q2: '✓ Followers are an audience, not customers. Unless you can connect follower growth to purchases or retention, it\'s just a number that feels good to report.',
+    q3: '✓ Transaction volume without context is misleading. Are those 84,000 transactions from loyal customers or one-time discount hunters? Volume alone doesn\'t answer that.',
+    q4: '✓ Revenue is the most common vanity metric in business. It can grow while margins shrink, acquisition costs rise, and churn accelerates. Without context, it tells you very little.'
+  };
+
+  const wrongFeedback = {
+    q1: 'Not quite. The real issue is that visitor count tells you nothing about behavior. What did those visitors do after they arrived?',
+    q2: 'Not quite. The core problem is simpler: followers don\'t buy products. Until you can connect follower growth to purchases, it\'s not a business metric.',
+    q3: 'Not quite. The real issue is context. Transaction count doesn\'t tell you whether those transactions are profitable or driven by repeat customers.',
+    q4: 'Not quite. The real problem is that revenue without context hides deterioration. Costs, margins, and churn can all be worsening while the top line grows.'
+  };
+
+  const correctText = {
+    q1: 'More visitors doesn\'t mean more customers.',
+    q2: 'Followers don\'t buy products.',
+    q3: 'Transaction volume without context',
+    q4: 'Revenue without context hides'
+  };
+
+  function pick(btn, qid, isCorrect) {
+    const btns = btn.parentElement.querySelectorAll('.diag-btn');
+    btns.forEach(b => b.disabled = true);
+    const fb = document.getElementById('fb-' + qid);
+    if (isCorrect) {
+      btn.classList.add('correct');
+      fb.textContent = feedback[qid];
+    } else {
+      btn.classList.add('incorrect');
+      btns.forEach(b => {
+        if(b.textContent.includes(correctText[qid])) b.classList.add('correct');
+      });
+      fb.textContent = wrongFeedback[qid];
+    }
+    fb.classList.add('show');
+    document.getElementById('next-' + qid).style.display = 'inline-block';
+  }
+
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+</script>
+</body>
+</html>
