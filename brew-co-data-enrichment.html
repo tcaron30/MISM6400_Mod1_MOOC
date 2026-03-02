@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brew & Co. Data Enrichment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; font-size: 16px; line-height: 1.6; }
+  .container { max-width: 680px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 20px; color: #297496; border-bottom: 2px solid #A0E0EF; padding-bottom: 10px; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #62b6d0; margin-bottom: 24px; }
+  .progress-bar { height: 6px; background: #C4E4ED; border-radius: 3px; margin-bottom: 28px; }
+  .progress-fill { height: 6px; background: #297496; border-radius: 3px; transition: width 0.4s ease; }
+  .step-label { font-size: 12px; color: #62b6d0; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .card { background: #fff; border: 1px solid #C4E4ED; border-radius: 8px; padding: 24px; }
+  .question-text { font-size: 16px; font-weight: bold; color: #1E556E; margin-bottom: 18px; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn { background: #f5f9fb; border: 1px solid #C4E4ED; border-radius: 6px; padding: 12px 16px; font-size: 15px; color: #1E556E; cursor: pointer; text-align: left; font-family: Georgia, serif; transition: background 0.2s, border-color 0.2s; }
+  .opt-btn:hover:not(:disabled) { background: #C6EFFC; border-color: #62b6d0; }
+  .opt-btn.correct { background: #d4f0e0; border-color: #2e7d52; color: #1a4d30; }
+  .opt-btn.incorrect { background: #fde8e6; border-color: #922E1F; color: #6b1c13; }
+  .opt-btn:disabled { cursor: default; }
+  .feedback { font-size: 14px; margin-top: 16px; padding: 12px 16px; border-radius: 6px; line-height: 1.6; display: none; }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #d4f0e0; color: #1a4d30; border: 1px solid #2e7d52; }
+  .feedback.incorrect { background: #fde8e6; color: #6b1c13; border: 1px solid #922E1F; }
+  .next-btn { background: #297496; color: #fff; border: none; border-radius: 6px; padding: 12px 28px; font-size: 15px; cursor: pointer; font-family: Georgia, serif; margin-top: 20px; transition: background 0.2s; display: none; }
+  .next-btn:hover { background: #1E556E; }
+  .seg-options { display: flex; flex-direction: column; gap: 10px; }
+  .seg-group { margin-bottom: 20px; }
+  .seg-group-label { font-size: 14px; font-weight: bold; color: #297496; margin-bottom: 8px; }
+  .seg-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg-btn { background: #f5f9fb; border: 1px solid #C4E4ED; border-radius: 6px; padding: 9px 14px; font-size: 14px; color: #1E556E; cursor: pointer; font-family: Georgia, serif; transition: background 0.2s; }
+  .seg-btn:hover:not(:disabled) { background: #C6EFFC; border-color: #62b6d0; }
+  .seg-btn.correct { background: #d4f0e0; border-color: #2e7d52; color: #1a4d30; font-weight: bold; }
+  .seg-btn.incorrect { background: #fde8e6; border-color: #922E1F; color: #6b1c13; }
+  .seg-btn:disabled { cursor: default; }
+  .seg-feedback { font-size: 13px; margin-top: 6px; padding: 8px 12px; border-radius: 6px; display: none; }
+  .seg-feedback.show { display: block; }
+  .seg-feedback.correct { background: #d4f0e0; color: #1a4d30; border: 1px solid #2e7d52; }
+  .seg-feedback.incorrect { background: #fde8e6; color: #6b1c13; border: 1px solid #922E1F; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .chip { background: #C6EFFC; border: 1px solid #62b6d0; border-radius: 20px; padding: 7px 14px; font-size: 13px; color: #1E556E; cursor: pointer; font-family: Georgia, serif; transition: background 0.2s, outline 0.1s; }
+  .chip:hover:not(.used) { background: #62b6d0; color: #fff; }
+  .chip.selected { outline: 2px solid #297496; background: #62b6d0; color: #fff; }
+  .chip.used { background: #E5E4E4; border-color: #b3b6b7; color: #b3b6b7; cursor: default; outline: none; }
+  .drop-areas { display: flex; flex-direction: column; gap: 10px; }
+  .drop-row { display: flex; align-items: center; gap: 12px; }
+  .drop-label { font-size: 14px; font-weight: bold; color: #1E556E; min-width: 100px; }
+  .drop-zone { flex: 1; border: 2px dashed #C4E4ED; border-radius: 6px; padding: 10px 14px; font-size: 14px; color: #b3b6b7; cursor: pointer; transition: border-color 0.2s, background 0.2s; min-height: 42px; }
+  .drop-zone:hover { border-color: #62b6d0; background: #f5f9fb; }
+  .drop-zone.filled { border-style: solid; border-color: #62b6d0; color: #1E556E; background: #fff; cursor: pointer; }
+  .drop-zone.correct { background: #d4f0e0; border-color: #2e7d52; border-style: solid; color: #1a4d30; cursor: default; }
+  .drop-zone.incorrect { background: #fde8e6; border-color: #922E1F; border-style: solid; color: #6b1c13; cursor: default; }
+  .summary-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+  .summary-icon { font-size: 22px; flex-shrink: 0; }
+  .summary-text { font-size: 15px; color: #1E556E; line-height: 1.6; }
+  .summary-text strong { color: #297496; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Brew &amp; Co. Data Enrichment</h1>
+  <p class="subtitle" id="subtitle">Step 1 of 3 — Calculated Fields</p>
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:8%"></div></div>
+
+  <!-- CALCULATED FIELDS: Q1 -->
+  <div class="screen active" id="s-q1">
+    <div class="card">
+      <div class="step-label">Calculated Fields</div>
+      <div class="question-text">What is the average transaction value across all five purchases?</div>
+      <div class="options">
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q1',false)">$4.25</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q1',true)">$6.10</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q1',false)">$7.50</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q1',false)">$5.75</button>
+      </div>
+      <div class="feedback" id="fb-q1"></div>
+    </div>
+    <button class="next-btn" id="next-q1" onclick="goTo('s-q2')">Next Question →</button>
+  </div>
+
+  <!-- CALCULATED FIELDS: Q2 -->
+  <div class="screen" id="s-q2">
+    <div class="card">
+      <div class="step-label">Calculated Fields</div>
+      <div class="question-text">How many transactions happened during the morning rush (7–9 AM)?</div>
+      <div class="options">
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q2',false)">2 out of 5</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q2',true)">3 out of 5</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q2',false)">4 out of 5</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q2',false)">5 out of 5</button>
+      </div>
+      <div class="feedback" id="fb-q2"></div>
+    </div>
+    <button class="next-btn" id="next-q2" onclick="goTo('s-q3')">Next Question →</button>
+  </div>
+
+  <!-- CALCULATED FIELDS: Q3 -->
+  <div class="screen" id="s-q3">
+    <div class="card">
+      <div class="step-label">Calculated Fields</div>
+      <div class="question-text">What is the repeat customer rate for this sample?</div>
+      <div class="options">
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q3',false)">33% — 1 of 3 customers returned</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q3',false)">50% — 1 of 2 customers returned</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q3',true)">67% — 2 of 3 customers returned</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q3',false)">100% — all customers returned</button>
+      </div>
+      <div class="feedback" id="fb-q3"></div>
+    </div>
+    <button class="next-btn" id="next-q3" onclick="goTo('s-q4')">Next Question →</button>
+  </div>
+
+  <!-- CALCULATED FIELDS: Q4 -->
+  <div class="screen" id="s-q4">
+    <div class="card">
+      <div class="step-label">Calculated Fields</div>
+      <div class="question-text">How many transactions included more than one item?</div>
+      <div class="options">
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q4',false)">1 out of 5</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q4',true)">2 out of 5</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q4',false)">3 out of 5</button>
+        <button class="opt-btn" onclick="mcAnswer(this,'s-q4',false)">4 out of 5</button>
+      </div>
+      <div class="feedback" id="fb-q4"></div>
+    </div>
+    <button class="next-btn" id="next-q4" onclick="goTo('s-seg')">Next: Customer Segmentation →</button>
+  </div>
+
+  <!-- SEGMENTATION -->
+  <div class="screen" id="s-seg">
+    <div class="card">
+      <div class="step-label">Customer Segmentation</div>
+      <div class="question-text">Based on the data, how would you categorize each customer?</div>
+
+      <div class="seg-group">
+        <div class="seg-group-label">Customer 847</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="segAnswer(this,'c847','high-frequent')">High-value, frequent</button>
+          <button class="seg-btn" onclick="segAnswer(this,'c847','high-occasional')">High-value, occasional</button>
+          <button class="seg-btn" onclick="segAnswer(this,'c847','low-frequent')">Low-value, frequent</button>
+        </div>
+        <div class="seg-feedback" id="fb-c847"></div>
+      </div>
+
+      <div class="seg-group">
+        <div class="seg-group-label">Customer 203</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="segAnswer(this,'c203','low-frequent')">Low-value, frequent</button>
+          <button class="seg-btn" onclick="segAnswer(this,'c203','high-occasional')">High-value, occasional</button>
+          <button class="seg-btn" onclick="segAnswer(this,'c203','low-occasional')">Low-value, occasional</button>
+        </div>
+        <div class="seg-feedback" id="fb-c203"></div>
+      </div>
+
+      <div class="seg-group">
+        <div class="seg-group-label">Customer 592</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="segAnswer(this,'c592','low-occasional')">Low-value, occasional</button>
+          <button class="seg-btn" onclick="segAnswer(this,'c592','high-occasional')">High-value, occasional</button>
+          <button class="seg-btn" onclick="segAnswer(this,'c592','high-frequent')">High-value, frequent</button>
+        </div>
+        <div class="seg-feedback" id="fb-c592"></div>
+      </div>
+
+      <div class="feedback" id="fb-seg"></div>
+    </div>
+    <button class="next-btn" id="next-seg" onclick="goTo('s-match')">Next: Business Insights →</button>
+  </div>
+
+  <!-- MATCHING -->
+  <div class="screen" id="s-match">
+    <div class="card">
+      <div class="step-label">Business Insights</div>
+      <div class="question-text">Match each enriched insight to the right business decision. Select an insight, then click where it belongs.</div>
+      <div class="chips" id="chips">
+        <div class="chip" id="chip-a" onclick="selectChip(this)">60% of sales happen 7–9 AM</div>
+        <div class="chip" id="chip-b" onclick="selectChip(this)">67% of customers return</div>
+        <div class="chip" id="chip-c" onclick="selectChip(this)">Multi-item orders nearly double spend</div>
+        <div class="chip" id="chip-d" onclick="selectChip(this)">One customer bought a full meal combo</div>
+      </div>
+      <div class="drop-areas">
+        <div class="drop-row">
+          <div class="drop-label">Staffing</div>
+          <div class="drop-zone" id="drop-staffing" onclick="dropHere(this,'staffing')">Select an insight above, then click here</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-label">Loyalty</div>
+          <div class="drop-zone" id="drop-loyalty" onclick="dropHere(this,'loyalty')">Select an insight above, then click here</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-label">Upselling</div>
+          <div class="drop-zone" id="drop-upsell" onclick="dropHere(this,'upsell')">Select an insight above, then click here</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-label">Menu Design</div>
+          <div class="drop-zone" id="drop-menu" onclick="dropHere(this,'menu')">Select an insight above, then click here</div>
+        </div>
+      </div>
+      <div class="feedback" id="fb-match" style="margin-top:16px;"></div>
+    </div>
+    <button class="next-btn" id="next-match" onclick="goTo('s-summary')">See the Full Picture →</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="screen" id="s-summary">
+    <div class="card">
+      <div class="step-label">The Full Picture</div>
+      <div class="question-text" style="font-size:17px;">From five transactions to a business strategy</div>
+      <div class="summary-item">
+        <div class="summary-icon">📊</div>
+        <div class="summary-text"><strong>Average transaction value: $6.10.</strong> Knowing this helps set upselling targets and measure whether campaigns are working.</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon">⏰</div>
+        <div class="summary-text"><strong>60% of sales in the 7–9 AM window.</strong> Schedule your best staff during peak hours, not your newest.</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon">🔁</div>
+        <div class="summary-text"><strong>67% repeat customer rate.</strong> A loyalty program already has an audience. Two of three customers came back on their own.</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon">🥐</div>
+        <div class="summary-text"><strong>Upsell rate: 40%.</strong> When customers add items, the transaction value nearly doubles. That's worth building into your point-of-sale prompts.</div>
+      </div>
+      <p style="margin-top:16px; font-size:15px;">This is exactly what Netflix does at scale — millions of data points, the same three-step process: raw data → enriched data → business intelligence.</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  const mcData = {
+    'q1': { correct: '$6.10', exp: 'Add all five amounts ($4.25 + $2.75 + $8.50 + $12.25 + $2.75 = $30.50) and divide by 5. The average is $6.10.' },
+    'q2': { correct: '3 out of 5', exp: 'Transactions 1 (7:23 AM), 2 (7:31 AM), and 3 (8:45 AM) all fall within the 7–9 AM window. Transaction 4 was at 9:15 AM — just outside.' },
+    'q3': { correct: '67%', exp: 'There are 3 unique customers. Customers 847 and 203 each appeared twice, so 2 of 3 returned. That\'s 67%.' },
+    'q4': { correct: '2 out of 5', exp: 'Transaction 3 (2 Lattes) and Transaction 4 (Latte + Pastry + Sandwich) each included more than one item.' }
+  };
+
+  const segData = {
+    c847: { correct: 'high-frequent', exp: '✓ Customer 847 visited twice and spent $12.75 total, the highest of any customer. High-value and frequent.' },
+    c203: { correct: 'low-frequent', exp: '✓ Customer 203 visited twice but only bought drip coffee each time. Low spend, but a loyal returner.' },
+    c592: { correct: 'high-occasional', exp: '✓ Customer 592 visited once but spent $12.25 in a single visit. High-value, but we\'ve only seen them once.' }
+  };
+
+  const correctMatches = { staffing:'chip-a', loyalty:'chip-b', upsell:'chip-c', menu:'chip-d' };
+  const matchExp = {
+    staffing: '60% of sales happen 7–9 AM. Schedule more staff during that window.',
+    loyalty: '67% of customers return. A loyalty program already has a ready audience.',
+    upsell: 'Multi-item orders nearly double spend. Train staff to suggest add-ons.',
+    menu: 'One customer bought a full combo. A featured combo deal could drive more of those.'
+  };
+
+  const steps = ['s-q1','s-q2','s-q3','s-q4','s-seg','s-match','s-summary'];
+  const subtitles = [
+    'Step 1 of 3 — Calculated Fields','Step 1 of 3 — Calculated Fields',
+    'Step 1 of 3 — Calculated Fields','Step 1 of 3 — Calculated Fields',
+    'Step 2 of 3 — Customer Segmentation',
+    'Step 3 of 3 — Business Insights',
+    'The Full Picture'
+  ];
+  const progPct = [8,24,40,56,68,82,100];
+
+  let selectedChip = null;
+  let dropsFilled = {};
+  let segDone = {c847:false, c203:false, c592:false};
+
+  function goTo(id) {
+    steps.forEach(s => document.getElementById(s).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const idx = steps.indexOf(id);
+    document.getElementById('subtitle').textContent = subtitles[idx];
+    document.getElementById('progress').style.width = progPct[idx] + '%';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function mcAnswer(btn, qid, isCorrect) {
+    const id = qid.replace('s-','');
+    const btns = btn.parentElement.querySelectorAll('.opt-btn');
+    btns.forEach(b => b.disabled = true);
+    const fb = document.getElementById('fb-' + id);
+    if (isCorrect) {
+      btn.classList.add('correct');
+      fb.className = 'feedback correct show';
+      fb.textContent = '✓ ' + mcData[id].exp;
+    } else {
+      btn.classList.add('incorrect');
+      fb.className = 'feedback incorrect show';
+      fb.textContent = '✗ ' + mcData[id].exp;
+      btns.forEach(b => { if(b.textContent.includes(mcData[id].correct)) b.classList.add('correct'); });
+    }
+    document.getElementById('next-' + id).style.display = 'inline-block';
+  }
+
+  function segAnswer(btn, cid, val) {
+    const row = btn.parentElement;
+    row.querySelectorAll('.seg-btn').forEach(b => b.disabled = true);
+    const fb = document.getElementById('fb-' + cid);
+    const isCorrect = val === segData[cid].correct;
+    if (isCorrect) {
+      btn.classList.add('correct');
+      fb.className = 'seg-feedback correct show';
+    } else {
+      btn.classList.add('incorrect');
+      fb.className = 'seg-feedback incorrect show';
+      row.querySelectorAll('.seg-btn').forEach(b => {
+        if(b.textContent.toLowerCase().includes(segData[cid].correct.replace('-',', '))) b.classList.add('correct');
+      });
+    }
+    fb.textContent = segData[cid].exp;
+    segDone[cid] = true;
+    if(segDone.c847 && segDone.c203 && segDone.c592) {
+      document.getElementById('next-seg').style.display = 'inline-block';
+    }
+  }
+
+  function selectChip(chip) {
+    if(chip.classList.contains('used')) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    selectedChip = chip;
+    chip.classList.add('selected');
+  }
+
+  function dropHere(drop, area) {
+    if(!selectedChip || dropsFilled[area]) return;
+    drop.textContent = selectedChip.textContent;
+    drop.classList.add('filled');
+    selectedChip.classList.remove('selected');
+    selectedChip.classList.add('used');
+    dropsFilled[area] = selectedChip.id;
+    selectedChip = null;
+    if(Object.keys(dropsFilled).length === 4) checkMatches();
+  }
+
+  function checkMatches() {
+    let allCorrect = true;
+    ['staffing','loyalty','upsell','menu'].forEach(area => {
+      const drop = document.getElementById('drop-' + area);
+      drop.onclick = null;
+      if(dropsFilled[area] === correctMatches[area]) {
+        drop.classList.add('correct');
+      } else {
+        drop.classList.add('incorrect');
+        allCorrect = false;
+      }
+    });
+    const fb = document.getElementById('fb-match');
+    if(allCorrect) {
+      fb.className = 'feedback correct show';
+      fb.textContent = '✓ Perfect. Each insight connects directly to a business decision.';
+    } else {
+      fb.className = 'feedback incorrect show';
+      fb.innerHTML = '✗ A few mismatches. Here\'s how each insight connects:<br><br>' +
+        Object.entries(matchExp).map(([,v]) => '• ' + v).join('<br>');
+    }
+    document.getElementById('next-match').style.display = 'inline-block';
+  }
+</script>
+</body>
+</html>
