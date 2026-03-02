@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPI Ranking</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f9fb; color: #1E556E; font-size: 16px; line-height: 1.6; }
+  .container { max-width: 680px; margin: 0 auto; padding: 32px 24px; }
+  .subtitle { font-size: 13px; color: #62b6d0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .instruction { font-size: 15px; color: #1E556E; margin-bottom: 24px; line-height: 1.6; }
+  .rank-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .rank-item { background: #fff; border: 1px solid #C4E4ED; border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: grab; transition: box-shadow 0.2s, border-color 0.2s; user-select: none; }
+  .rank-item:active { cursor: grabbing; }
+  .rank-item.dragging { opacity: 0.5; box-shadow: 0 4px 12px rgba(41,116,150,0.15); border-color: #62b6d0; }
+  .rank-item.drag-over { border-color: #297496; background: #C6EFFC; }
+  .rank-num { font-size: 18px; font-weight: bold; color: #62b6d0; min-width: 28px; text-align: center; }
+  .rank-text { font-size: 15px; color: #1E556E; }
+  .rank-handle { color: #b3b6b7; font-size: 18px; margin-left: auto; }
+  .submit-btn { background: #297496; color: #fff; border: none; border-radius: 6px; padding: 12px 28px; font-size: 15px; cursor: pointer; font-family: Georgia, serif; transition: background 0.2s; }
+  .submit-btn:hover { background: #1E556E; }
+  .feedback-card { background: #fff; border: 1px solid #C4E4ED; border-radius: 8px; padding: 24px; display: none; }
+  .feedback-card.show { display: block; }
+  .feedback-title { font-size: 16px; font-weight: bold; color: #297496; margin-bottom: 16px; }
+  .rec-item { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .rec-num { font-size: 17px; font-weight: bold; color: #297496; min-width: 28px; }
+  .rec-content { font-size: 14px; color: #1E556E; line-height: 1.6; }
+  .rec-content strong { color: #1E556E; }
+  .rec-content .why { color: #62b6d0; font-size: 13px; margin-top: 2px; }
+  .divider { height: 1px; background: #E5E4E4; margin: 16px 0; }
+  .reflection { font-size: 14px; color: #1E556E; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+  <p class="subtitle">KPI Ranking Exercise</p>
+  <p class="instruction">You calculated four metrics in the Brew &amp; Co. exercise. Drag them into order from most to least actionable—most actionable at the top.</p>
+
+  <div class="rank-list" id="rank-list">
+    <div class="rank-item" draggable="true" data-id="avg">
+      <div class="rank-num">1</div>
+      <div class="rank-text">Average transaction value</div>
+      <div class="rank-handle">⠿</div>
+    </div>
+    <div class="rank-item" draggable="true" data-id="repeat">
+      <div class="rank-num">2</div>
+      <div class="rank-text">Repeat customer rate</div>
+      <div class="rank-handle">⠿</div>
+    </div>
+    <div class="rank-item" draggable="true" data-id="peak">
+      <div class="rank-num">3</div>
+      <div class="rank-text">Peak hour percentage</div>
+      <div class="rank-handle">⠿</div>
+    </div>
+    <div class="rank-item" draggable="true" data-id="upsell">
+      <div class="rank-num">4</div>
+      <div class="rank-text">Upsell success rate</div>
+      <div class="rank-handle">⠿</div>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="showFeedback()">See Recommended Order →</button>
+
+  <div class="feedback-card" id="feedback" style="margin-top:24px;">
+    <div class="feedback-title">One way to think about it</div>
+    <div class="rec-item">
+      <div class="rec-num">1</div>
+      <div class="rec-content">
+        <strong>Repeat customer rate</strong>
+        <div class="why">When this changes, you know exactly what to do: adjust your loyalty strategy, pricing, or customer experience. It connects directly to long-term revenue.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">2</div>
+      <div class="rec-content">
+        <strong>Upsell success rate</strong>
+        <div class="why">A drop here signals a specific problem: staff training, menu layout, or point-of-sale prompts. Clear cause, clear action.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">3</div>
+      <div class="rec-content">
+        <strong>Peak hour percentage</strong>
+        <div class="why">Useful for staffing decisions, but it tends to be stable. Less likely to shift week to week, so it drives fewer day-to-day decisions.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">4</div>
+      <div class="rec-content">
+        <strong>Average transaction value</strong>
+        <div class="why">Important context, but on its own it doesn't tell you why it changed or what to do. It's more useful as a supporting metric than a primary KPI.</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="reflection">There's no single right answer here. The best KPI depends on your business priorities. What matters is that you can connect each metric to a specific decision.</div>
+  </div>
+</div>
+
+<script>
+  const list = document.getElementById('rank-list');
+  let dragged = null;
+
+  list.querySelectorAll('.rank-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragged = item;
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      updateNumbers();
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if(item !== dragged) item.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if(item !== dragged) {
+        const items = [...list.querySelectorAll('.rank-item')];
+        const dragIdx = items.indexOf(dragged);
+        const dropIdx = items.indexOf(item);
+        if(dragIdx < dropIdx) list.insertBefore(dragged, item.nextSibling);
+        else list.insertBefore(dragged, item);
+      }
+    });
+  });
+
+  function updateNumbers() {
+    list.querySelectorAll('.rank-item').forEach((item, i) => {
+      item.querySelector('.rank-num').textContent = i + 1;
+    });
+  }
+
+  function showFeedback() {
+    document.getElementById('feedback').classList.add('show');
+    document.querySelector('.submit-btn').style.display = 'none';
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+  }
+</script>
+</body>
+</html>
