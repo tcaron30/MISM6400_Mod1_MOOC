@@ -156,7 +156,11 @@ const scenes = [
   },
   {
     label: 'Decision 4 of 4: The CEO\'s Challenge',
-    text: 'The CEO leans forward. "Every other consultant I\'ve talked to says Meridian needs to be online. You\'re telling me something different. Why should I trust this over the conventional wisdom?"',
+    textByPath: {
+      A: 'The CEO leans forward. "Every other consultant I\'ve talked to says Meridian needs to be online. You\'re telling me something different. Why should I trust this over the conventional wisdom?"',
+      B: '"You\'ve made some reasonable points, but I\'m still not fully convinced. Every other consultant is telling me we need to be online. Where do you actually stand on that?"',
+      C: '"Look, I appreciate the effort, but I haven\'t heard a clear direction from you yet. Everyone else is saying e-commerce. Are you telling me something different or not?"'
+    },
     choices: [
       { text: '"Competing on Amazon\'s terms means competing on cost and speed—areas where Meridian has no VRIO-validated advantage. Every dollar spent chasing Amazon is a dollar not spent widening an advantage competitors can\'t copy. The in-store experience is what Meridian actually owns."', quality: 'good', reveal: 'The CEO pauses, then: "Nobody has said it quite like that before." She approves the full initiative.', feedback: 'You\'ve used VRIO not just to identify an advantage but to defend a strategic choice under pressure. This is what makes analytics strategy different from analytics reporting.', dashUpdate: { market: 75, staff: 'High', analytics: 'Active' }, nextPath: 'A' },
       { text: '"E-commerce is important long-term, but Meridian doesn\'t have the budget to do both well right now. We should start where we have the strongest foundation."', quality: 'neutral', reveal: 'The CEO accepts the logic but isn\'t fully convinced. "Fine, but I want a plan for online within 12 months." The initiative moves forward at reduced scope.', feedback: 'A reasonable answer but a missed opportunity. Framing it as a budget constraint rather than a strategic choice leaves the door open for conventional wisdom to win later.', dashUpdate: { market: 73, analytics: 'Partial' }, nextPath: 'B' },
