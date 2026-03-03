@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spot the Flawed Test</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f9fb; color: #1E556E;">
+
+<div id="dp-wrapper">
+  <div>
+
+  <div style="background: #E2E3E4; border-radius: 4px; margin: 24px 24px 0 24px; height: 10px;">
+    <div id="progress-bar" style="background: #297496; height: 10px; border-radius: 4px; width: 0%; transition: width 0.4s ease;"></div>
+  </div>
+  <p id="progress-label" style="text-align: right; margin: 4px 24px 0 0; font-size: 10pt; color: #1E556E;"></p>
+
+  <div style="max-width: 720px; margin: 16px auto 32px auto; padding: 0 24px;">
+    <div id="quiz-area"></div>
+    <div id="feedback-box" style="display:none; border-left: 4px solid #297496; background: #C6EFFC; padding: 16px 20px; margin-top: 20px; border-radius: 0 6px 6px 0; font-size: 10.5pt; color: #1E556E; line-height: 1.6;"></div>
+    <div style="text-align: right; margin-top: 20px;">
+      <button id="next-btn" onclick="nextStep()" style="display:none; background: #297496; color: #fff; border: none; padding: 12px 28px; font-size: 11pt; font-family: Arial, sans-serif; border-radius: 4px; cursor: pointer;">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div id="completion" style="display:none; max-width: 720px; margin: 32px auto; padding: 0 24px; text-align: center;">
+    <div style="background: #C6EFFC; border-radius: 8px; padding: 40px 32px;">
+      <p style="font-size: 28pt; margin: 0;">&#10003;</p>
+      <h2 style="color: #297496; font-size: 16pt; margin: 12px 0 8px 0;">Well done.</h2>
+      <p style="color: #1E556E; font-size: 11pt; line-height: 1.7; margin: 0 0 20px 0;">You've identified the flaw and the fix in all three scenarios. Recognizing these patterns in real testing situations is what separates reliable evidence from expensive noise.</p>
+      <div style="background: #f5f9fb; border-radius: 6px; padding: 16px; text-align: left; margin-bottom: 20px;">
+        <p style="color: #1E556E; font-size: 10pt; line-height: 1.7; margin: 0 0 6px 0;"><strong>The three pitfalls to watch for:</strong></p>
+        <p style="color: #1E556E; font-size: 10pt; line-height: 1.7; margin: 0 0 4px 0;">&#8226; <strong>Test duration too short</strong> — three days misses weekly patterns and novelty effects.</p>
+        <p style="color: #1E556E; font-size: 10pt; line-height: 1.7; margin: 0 0 4px 0;">&#8226; <strong>Multiple comparisons</strong> — testing 15 variations at once inflates the chance of a false positive.</p>
+        <p style="color: #1E556E; font-size: 10pt; line-height: 1.7; margin: 0;">&#8226; <strong>P-hacking</strong> — extending a test after it fails to reach significance undermines the result.</p>
+      </div>
+      <button onclick="restartQuiz()" style="background: #fff; color: #297496; border: 2px solid #297496; padding: 10px 24px; font-size: 10.5pt; font-family: Arial, sans-serif; border-radius: 4px; cursor: pointer;">&#8635; Try again</button>
+    </div>
+  </div>
+
+  <div id="dpCustomCss" data-external-style="/css/style.css">&nbsp;</div>
+  </div>
+</div>
+
+<script>
+const scenarios = [
+  {
+    label: "Scenario 1 of 3",
+    sublabel: "Email Subject Line Test",
+    context: "A marketing team ran an email subject line test for three days. Version B had a higher open rate with p = 0.04. They immediately rolled out Version B company-wide.",
+    steps: [
+      {
+        question: "What is the primary flaw in this test?",
+        options: [
+          "The p-value of 0.04 is not below the 0.05 threshold, so the result is not significant.",
+          "Three days is too short. The test does not account for weekly patterns. Open rates on Monday are very different from those on Friday. The result may not hold across a full week.",
+          "The team should have tested more than two subject line variations before making a decision.",
+          "Rolling out to the full list immediately is fine since the result was statistically significant."
+        ],
+        correct: 1,
+        feedback: "<strong>Option B is correct.</strong> Three days is not enough to capture weekly variation in email behavior. Open rates vary significantly by day of the week, and a short test may have coincidentally run during a period that favored Version B. The p-value of 0.04 does clear the 0.05 threshold, but a statistically significant result from an underpowered test duration is still unreliable."
+      },
+      {
+        question: "How should the team have run this test?",
+        options: [
+          "Run the test for at least one full week—ideally two—to capture a complete cycle of weekday and weekend sending behavior before drawing conclusions.",
+          "Lower the significance threshold to p < 0.01 to make the result more reliable.",
+          "Test five or more subject line variations at once to find the best performer faster.",
+          "Send Version B to 10% of the list first, then roll out if open rates stay high."
+        ],
+        correct: 0,
+        feedback: "<strong>Option A is correct.</strong> A full week minimum—ideally two—ensures the test captures the natural variation in email open behavior across different days. Lowering the threshold (Option B) addresses a different problem. Testing more variations simultaneously (Option C) introduces the multiple comparisons problem. A staged rollout (Option D) is a reasonable risk management approach but does not fix the duration problem."
+      }
+    ]
+  },
+  {
+    label: "Scenario 2 of 3",
+    sublabel: "Homepage Variation Test",
+    context: "An analytics team tested 15 different homepage variations simultaneously. Variation 7 showed a significant improvement (p = 0.03). They declared it the winner.",
+    steps: [
+      {
+        question: "What is the primary flaw in this test?",
+        options: [
+          "The team should have used a higher confidence threshold than 95% for a test this important.",
+          "Testing 15 variations simultaneously creates a multiple comparisons problem. With 15 tests at a 95% confidence threshold, random chance alone would be expected to produce at least one false positive.",
+          "Variation 7 should have been tested against the control group only, not against the other 14 variations.",
+          "A p-value of 0.03 is too close to the 0.05 threshold to be reliable for a major homepage decision."
+        ],
+        correct: 1,
+        feedback: "<strong>Option B is correct.</strong> When you run 15 simultaneous tests each at a 5% false positive rate, the probability that at least one test produces a spurious significant result by chance alone is very high. Finding one significant result out of 15 is exactly what you'd expect from random variation—it does not mean Variation 7 actually works. The fix is to test fewer variations at once or adjust the significance threshold to account for multiple comparisons."
+      },
+      {
+        question: "How should the team have approached this test?",
+        options: [
+          "Test all 15 variations but require p < 0.001 instead of p < 0.05 to declare a winner.",
+          "Narrow down to two or three of the most promising variations based on a clear hypothesis before testing, rather than running all 15 simultaneously.",
+          "Run each variation for a longer period to generate more data before comparing results.",
+          "Declare Variation 7 the winner but run a second confirmatory test before full rollout."
+        ],
+        correct: 1,
+        feedback: "<strong>Option B is correct.</strong> Good experimental design starts with a clear hypothesis about which changes are most likely to work and why—then tests a small number of focused variations. Testing 15 variations at once is a sign that the team is exploring rather than testing, which requires a fundamentally different analytical approach. Option D (a confirmatory test) is a reasonable safeguard, but it does not fix the original design problem."
+      }
+    ]
+  },
+  {
+    label: "Scenario 3 of 3",
+    sublabel: "Extended Significance Test",
+    context: "After two weeks, results were not significant (p = 0.09). The team ran the test for two more weeks. At week four, p = 0.048. They reported a significant finding.",
+    steps: [
+      {
+        question: "What is the primary flaw in this test?",
+        options: [
+          "The test should have been stopped at two weeks since the result was not significant at that point.",
+          "A p-value of 0.048 is not meaningfully different from 0.05 and should not be considered significant.",
+          "Extending the test after it failed to reach significance at the predetermined end date is p-hacking. The team kept collecting data until they got the result they wanted.",
+          "Four weeks is too long for a business experiment—results become unreliable as conditions change."
+        ],
+        correct: 2,
+        feedback: "<strong>Option C is correct.</strong> The test had a predetermined end date of two weeks. When it did not reach significance, the team extended it—not because there was a principled reason to do so, but because the result was not what they hoped for. This is p-hacking. Every additional week of data collection is another opportunity for random variation to push the p-value across the threshold. A result of p = 0.048 achieved this way is not reliable evidence."
+      },
+      {
+        question: "What should the team have done when results were not significant at two weeks?",
+        options: [
+          "Extend the test, but set a new predetermined end date of four weeks and commit to accepting whatever result emerges at that point.",
+          "Accept the two-week result as the final answer. If p = 0.09 at the predetermined end date, the test did not find a significant effect—and that is a valid, useful result.",
+          "Lower the significance threshold to p < 0.10 to account for the borderline result.",
+          "Remove the underperforming customer segments from the analysis to improve the p-value."
+        ],
+        correct: 1,
+        feedback: "<strong>Option B is correct.</strong> A non-significant result at a predetermined end date is a legitimate finding—it means the test did not find sufficient evidence for the effect. That is valuable information. It tells the team the change probably is not worth pursuing, or that a larger sample size would be needed to detect a smaller effect. Option A sounds principled but is still p-hacking in disguise. Options C and D are both forms of p-hacking."
+      }
+    ]
+  }
+];
+
+let scenarioIdx = 0;
+let stepIdx = 0;
+let answered = false;
+
+function totalSteps() {
+  return scenarios.reduce((s, sc) => s + sc.steps.length, 0);
+}
+
+function currentStepNumber() {
+  let n = 0;
+  for (let i = 0; i < scenarioIdx; i++) n += scenarios[i].steps.length;
+  return n + stepIdx + 1;
+}
+
+function renderStep() {
+  answered = false;
+  document.getElementById('feedback-box').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+
+  const sc = scenarios[scenarioIdx];
+  const step = sc.steps[stepIdx];
+  const total = totalSteps();
+  const current = currentStepNumber();
+
+  document.getElementById('progress-bar').style.width = ((current - 1) / total * 100) + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + current + ' of ' + total;
+
+  let html = `
+    <div style="background: #297496; border-radius: 6px 6px 0 0; padding: 12px 20px;">
+      <p style="font-size: 10pt; font-weight: bold; color: #fff; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 0.05em;">${sc.label}</p>
+      <p style="font-size: 12pt; font-weight: bold; color: #fff; margin: 0;">${sc.sublabel}</p>
+    </div>
+    <div style="background: #C4E4ED; border-radius: 0 0 6px 6px; padding: 16px 20px; margin-bottom: 20px;">
+      <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;">${sc.context}</p>
+    </div>
+    <p style="font-size: 11pt; color: #1E556E; margin: 0 0 16px 0; line-height: 1.5; font-weight: bold;">${step.question}</p>
+  `;
+
+  step.options.forEach((opt, i) => {
+    html += `
+      <button onclick="selectAnswer(${i})" id="opt-${i}" style="
+        display: block; width: 100%; text-align: left; padding: 14px 18px;
+        margin-bottom: 10px; background: #fff; border: 2px solid #C4E4ED;
+        border-radius: 6px; font-size: 10.5pt; color: #1E556E;
+        cursor: pointer; line-height: 1.5; font-family: Arial, sans-serif;">
+        <span style="font-weight: bold; margin-right: 8px;">${String.fromCharCode(65+i)}.</span>${opt}
+      </button>
+    `;
+  });
+
+  document.getElementById('quiz-area').innerHTML = html;
+}
+
+function selectAnswer(i) {
+  if (answered) return;
+  answered = true;
+
+  const step = scenarios[scenarioIdx].steps[stepIdx];
+  for (let j = 0; j < step.options.length; j++) {
+    const btn = document.getElementById('opt-' + j);
+    btn.style.cursor = 'default';
+    if (j === step.correct) {
+      btn.style.border = '2px solid #297496';
+      btn.style.background = '#C6EFFC';
+    } else if (j === i && i !== step.correct) {
+      btn.style.border = '2px solid #922E1F';
+      btn.style.background = '#fdf0ee';
+      btn.style.color = '#922E1F';
+    } else {
+      btn.style.opacity = '0.5';
+    }
+  }
+
+  const fb = document.getElementById('feedback-box');
+  fb.innerHTML = step.feedback;
+  fb.style.display = 'block';
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'inline-block';
+  const isLast = scenarioIdx === scenarios.length - 1 && stepIdx === scenarios[scenarioIdx].steps.length - 1;
+  nextBtn.textContent = isLast ? 'Finish' : 'Next \u2192';
+}
+
+function nextStep() {
+  stepIdx++;
+  if (stepIdx >= scenarios[scenarioIdx].steps.length) {
+    scenarioIdx++;
+    stepIdx = 0;
+  }
+  if (scenarioIdx >= scenarios.length) {
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('feedback-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('progress-bar').style.width = '100%';
+    document.getElementById('progress-label').style.display = 'none';
+    document.getElementById('completion').style.display = 'block';
+  } else {
+    renderStep();
+    window.scrollTo(0, 0);
+  }
+}
+
+function restartQuiz() {
+  scenarioIdx = 0;
+  stepIdx = 0;
+  answered = false;
+  document.getElementById('completion').style.display = 'none';
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('progress-label').style.display = 'block';
+  renderStep();
+  window.scrollTo(0, 0);
+}
+
+renderStep();
+</script>
+</body>
+</html>
