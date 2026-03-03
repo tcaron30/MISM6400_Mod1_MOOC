@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding P-Values</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f9fb; color: #1E556E;">
+
+<div id="dp-wrapper">
+  <div>
+
+  <div style="background: #E2E3E4; border-radius: 4px; margin: 24px 24px 0 24px; height: 10px;">
+    <div id="progress-bar" style="background: #297496; height: 10px; border-radius: 4px; width: 0%; transition: width 0.4s ease;"></div>
+  </div>
+  <p id="progress-label" style="text-align: right; margin: 4px 24px 0 0; font-size: 10pt; color: #1E556E;">Step 1 of 4</p>
+
+  <div style="max-width: 720px; margin: 16px auto 32px auto; padding: 0 24px;">
+    <div id="screen-area"></div>
+    <div id="quiz-feedback" style="display:none; border-left: 4px solid #297496; background: #C6EFFC; padding: 16px 20px; margin-top: 16px; border-radius: 0 6px 6px 0; font-size: 10.5pt; color: #1E556E; line-height: 1.6;"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+      <button id="back-btn" onclick="prevScreen()" style="background: #fff; color: #297496; border: 2px solid #297496; padding: 12px 24px; font-size: 11pt; font-family: Arial, sans-serif; border-radius: 4px; cursor: pointer;">&larr; Back</button>
+      <button id="next-btn" onclick="nextScreen()" style="background: #297496; color: #fff; border: none; padding: 12px 28px; font-size: 11pt; font-family: Arial, sans-serif; border-radius: 4px; cursor: pointer; margin-left: auto;">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div id="completion" style="display:none; max-width: 720px; margin: 32px auto; padding: 0 24px; text-align: center;">
+    <div style="background: #C6EFFC; border-radius: 8px; padding: 40px 32px;">
+      <p style="font-size: 28pt; margin: 0;">&#10003;</p>
+      <h2 style="color: #297496; font-size: 16pt; margin: 12px 0 8px 0;">You've got it.</h2>
+      <p style="color: #1E556E; font-size: 11pt; line-height: 1.7; margin: 0 0 20px 0;">A p-value tells you how likely your results are due to random chance. When it's below 0.05, you can be confident the effect is real. On the next page, you'll use exactly that logic to interpret your free shipping experiment.</p>
+      <div style="background: #f5f9fb; border-radius: 6px; padding: 16px; text-align: left; margin-bottom: 20px;">
+        <p style="color: #1E556E; font-size: 10.5pt; line-height: 1.6; margin: 0;"><strong>Remember:</strong> statistical significance tells you the effect is real, not that it's large enough to act on. That's the next question you'll need to answer.</p>
+      </div>
+      <button onclick="restartExplainer()" style="background: #fff; color: #297496; border: 2px solid #297496; padding: 10px 24px; font-size: 10.5pt; font-family: Arial, sans-serif; border-radius: 4px; cursor: pointer;">&#8635; Review again</button>
+    </div>
+  </div>
+
+  <div id="dpCustomCss" data-external-style="/css/style.css">&nbsp;</div>
+  </div>
+</div>
+
+<script>
+let current = 0;
+let quizAnswered = false;
+
+const screenContent = [
+  {
+    html: `
+      <p style="font-size: 9.5pt; color: #1E556E; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.05em;">Step 1 of 4 — What Is a P-Value?</p>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 16px 0;">When you run a business experiment, you'll almost always see some difference between your control and treatment groups. The question is: is that difference real, or did it just happen by chance?</p>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 20px 0;">The p-value answers exactly that question.</p>
+      <div style="background: #C4E4ED; border-radius: 6px; padding: 20px 24px; margin-bottom: 20px;">
+        <p style="font-size: 12pt; color: #1E556E; margin: 0 0 10px 0; font-weight: bold;">The p-value tells you:</p>
+        <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0;">"If there were truly no difference between the two groups, how likely would it be to see results this extreme just by random chance?"</p>
+      </div>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 12px 0;">A <strong>low p-value</strong> means your results are unlikely to be random. Something real is probably going on.</p>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0;">A <strong>high p-value</strong> means your results could easily have occurred by chance. You don't have enough evidence to be confident.</p>
+    `
+  },
+  {
+    html: `
+      <p style="font-size: 9.5pt; color: #1E556E; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.05em;">Step 2 of 4 — The 0.05 Threshold</p>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 20px 0;">P-values run from 0 to 1. The closer to 0, the less likely your results are due to chance. In business testing, the conventional threshold is <strong>p &lt; 0.05</strong>.</p>
+      <div style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px;">
+          <div style="flex: 1; background: #C6EFFC; border-radius: 6px; padding: 12px 14px; border-left: 4px solid #297496;">
+            <p style="font-size: 10pt; font-weight: bold; color: #1E556E; margin: 0 0 4px 0;">p &lt; 0.05</p>
+            <p style="font-size: 10pt; color: #1E556E; margin: 0; line-height: 1.5;">Statistically significant. Less than 5% chance the result is random. You can be 95% confident the effect is real.</p>
+          </div>
+          <div style="flex: 1; background: #f5f9fb; border-radius: 6px; padding: 12px 14px; border-left: 4px solid #b3b6b7;">
+            <p style="font-size: 10pt; font-weight: bold; color: #1E556E; margin: 0 0 4px 0;">p &ge; 0.05</p>
+            <p style="font-size: 10pt; color: #1E556E; margin: 0; line-height: 1.5;">Not significant. Too likely to be random chance. You don't have enough evidence to act confidently.</p>
+          </div>
+        </div>
+      </div>
+      <div style="border-left: 4px solid #297496; background: #C6EFFC; padding: 14px 18px; border-radius: 0 6px 6px 0;">
+        <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;"><strong>Simply put:</strong> a p-value of 0.03 means there's only a 3% chance your results happened by luck. A p-value of 0.24 means there's a 24% chance—too high to be confident.</p>
+      </div>
+    `
+  },
+  {
+    html: `
+      <p style="font-size: 9.5pt; color: #1E556E; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.05em;">Step 3 of 4 — Apply It to Your Experiment</p>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 16px 0;">Let's apply this to your free shipping experiment. Here's what you found:</p>
+      <div style="background: #C4E4ED; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px;">
+        <div style="display: flex; gap: 12px;">
+          <div style="flex: 1; background: #fff; border-radius: 6px; padding: 12px 14px;">
+            <p style="font-size: 9.5pt; font-weight: bold; color: #297496; margin: 0 0 4px 0; text-transform: uppercase;">Control</p>
+            <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;">$5 shipping<br>180 / 1,000 purchases<br><strong>18% conversion</strong></p>
+          </div>
+          <div style="flex: 1; background: #fff; border-radius: 6px; padding: 12px 14px;">
+            <p style="font-size: 9.5pt; font-weight: bold; color: #297496; margin: 0 0 4px 0; text-transform: uppercase;">Treatment</p>
+            <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;">Free shipping<br>216 / 1,000 purchases<br><strong>21.6% conversion</strong></p>
+          </div>
+          <div style="flex: 1; background: #fff; border-radius: 6px; padding: 12px 14px;">
+            <p style="font-size: 9.5pt; font-weight: bold; color: #297496; margin: 0 0 4px 0; text-transform: uppercase;">P-Value</p>
+            <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;"><strong>0.03</strong></p>
+          </div>
+        </div>
+      </div>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 20px 0;">The treatment group converted at 21.6% vs. 18% in the control group. That looks promising—but is the difference real, or could it just be noise?</p>
+      <div style="background: #fff; border: 2px solid #C4E4ED; border-radius: 6px; padding: 16px 20px; margin-bottom: 12px;">
+        <p style="font-size: 10pt; font-weight: bold; color: #297496; margin: 0 0 6px 0;">Step 1 — Ask the p-value question</p>
+        <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;">If free shipping had no real effect, how likely would it be to see a difference this large just by chance? The p-value answers that. Here, p = <strong>0.03</strong>.</p>
+      </div>
+      <div style="background: #fff; border: 2px solid #C4E4ED; border-radius: 6px; padding: 16px 20px; margin-bottom: 12px;">
+        <p style="font-size: 10pt; font-weight: bold; color: #297496; margin: 0 0 6px 0;">Step 2 — Translate the number</p>
+        <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;">A p-value of 0.03 means there is only a <strong>3% chance</strong> this result occurred by random chance. In other words, if we ran this experiment 100 times with a product that had no real effect, we'd only expect to see a difference this large 3 times.</p>
+      </div>
+      <div style="background: #fff; border: 2px solid #C4E4ED; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px;">
+        <p style="font-size: 10pt; font-weight: bold; color: #297496; margin: 0 0 6px 0;">Step 3 — Compare to the threshold</p>
+        <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;">Our threshold is <strong>p &lt; 0.05</strong>. Since 0.03 is below 0.05, the result clears the bar. We call this <strong>statistically significant</strong>—meaning we can be 95% confident the conversion lift is real, not a fluke.</p>
+      </div>
+      <div style="border-left: 4px solid #297496; background: #C6EFFC; padding: 14px 18px; border-radius: 0 6px 6px 0;">
+        <p style="font-size: 10.5pt; color: #1E556E; margin: 0; line-height: 1.6;"><strong>But here's the catch:</strong> knowing the effect is real doesn't tell you whether it's worth acting on. A 3.6 percentage point lift sounds great—but what does it mean for your bottom line once you factor in the cost of free shipping? That's what you'll work out on the next page.</p>
+      </div>
+    `
+  },
+  {
+    html: `
+      <p style="font-size: 9.5pt; color: #1E556E; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.05em;">Step 4 of 4 — Check Your Understanding</p>
+      <p style="font-size: 11pt; color: #1E556E; line-height: 1.7; margin: 0 0 20px 0;">Booking.com runs a test on whether showing a hotel's distance from the city center on search results affects booking rate. After 50,000 visitors, the result shows a small improvement in the treatment group. The p-value is <strong>0.12</strong>.</p>
+      <p style="font-size: 11pt; color: #1E556E; margin: 0 0 16px 0; font-weight: bold;">What should Booking.com conclude?</p>
+      ${['The result is statistically significant. They should roll out the distance display immediately.',
+         'The result is not statistically significant. There is a 12% chance this difference occurred by random chance—too high to be confident the effect is real.',
+         'The result is inconclusive because the sample size of 50,000 is too small.',
+         'The p-value of 0.12 means the distance display hurt booking rate.']
+        .map((opt, i) => `
+          <button onclick="selectQuizAnswer(${i})" id="qopt-${i}" style="
+            display: block; width: 100%; text-align: left; padding: 14px 18px;
+            margin-bottom: 10px; background: #fff; border: 2px solid #C4E4ED;
+            border-radius: 6px; font-size: 10.5pt; color: #1E556E;
+            cursor: pointer; line-height: 1.5; font-family: Arial, sans-serif;">
+            <span style="font-weight: bold; margin-right: 8px;">${String.fromCharCode(65+i)}.</span>${opt}
+          </button>`).join('')}
+    `
+  }
+];
+
+function renderScreen() {
+  document.getElementById('screen-area').innerHTML = screenContent[current].html;
+  document.getElementById('quiz-feedback').style.display = 'none';
+
+  const pct = (current / screenContent.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Step ' + (current + 1) + ' of ' + screenContent.length;
+
+  document.getElementById('back-btn').style.display = current > 0 ? 'inline-block' : 'none';
+
+  const nextBtn = document.getElementById('next-btn');
+  if (current < screenContent.length - 1) {
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = 'Next \u2192';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+}
+
+function selectQuizAnswer(i) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const correct = 1;
+  for (let j = 0; j < 4; j++) {
+    const btn = document.getElementById('qopt-' + j);
+    btn.style.cursor = 'default';
+    if (j === correct) {
+      btn.style.border = '2px solid #297496';
+      btn.style.background = '#C6EFFC';
+    } else if (j === i && i !== correct) {
+      btn.style.border = '2px solid #922E1F';
+      btn.style.background = '#fdf0ee';
+      btn.style.color = '#922E1F';
+    } else {
+      btn.style.opacity = '0.5';
+    }
+  }
+  const fb = document.getElementById('quiz-feedback');
+  fb.innerHTML = '<strong>Option B is correct.</strong> A p-value of 0.12 means there is a 12% chance this difference occurred by random chance—well above the 0.05 threshold. The result is not statistically significant, meaning Booking.com cannot be confident the effect is real. They should not roll out the change based on this test. Option A misreads the threshold. Option C is incorrect—50,000 visitors is a large sample. Option D misinterprets what a p-value measures.';
+  fb.style.display = 'block';
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = 'Finish';
+}
+
+function nextScreen() {
+  if (current === screenContent.length - 1) {
+    document.getElementById('screen-area').style.display = 'none';
+    document.getElementById('quiz-feedback').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('back-btn').style.display = 'none';
+    document.getElementById('progress-bar').style.width = '100%';
+    document.getElementById('progress-label').style.display = 'none';
+    document.getElementById('completion').style.display = 'block';
+  } else {
+    current++;
+    quizAnswered = false;
+    renderScreen();
+    window.scrollTo(0, 0);
+  }
+}
+
+function prevScreen() {
+  if (current > 0) {
+    current--;
+    quizAnswered = false;
+    renderScreen();
+    window.scrollTo(0, 0);
+  }
+}
+
+function restartExplainer() {
+  current = 0;
+  quizAnswered = false;
+  document.getElementById('completion').style.display = 'none';
+  document.getElementById('screen-area').style.display = 'block';
+  document.getElementById('progress-label').style.display = 'block';
+  renderScreen();
+  window.scrollTo(0, 0);
+}
+
+renderScreen();
+</script>
+</body>
+</html>
