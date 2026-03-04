@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategy Alignment Audit</title>
+</head>
+<body style="margin:0;padding:0;font-family:Georgia,serif;background:#f5f9fb;color:#1E556E;">
+
+<div id="dp-wrapper" class="dp-wrapper">
+  <p class="dp-progress-placeholder dp-module-progress-completion" style="display:none;margin-top:12px;padding-top:5px;">Module Item Completion (browser only)</p>
+  <div>
+
+    <!-- Progress Bar -->
+    <div style="padding:20px 24px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:10pt;color:#297496;" id="progressLabel">Investment 1 of 3</span>
+        <span style="font-size:10pt;color:#297496;" id="progressPct">0%</span>
+      </div>
+      <div style="background:#E5E4E4;border-radius:4px;height:8px;">
+        <div id="progressBar" style="background:#62b6d0;height:8px;border-radius:4px;width:0%;transition:width 0.4s;"></div>
+      </div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div id="modeToggleWrap" style="padding:16px 24px 0;max-width:720px;margin:0 auto;">
+      <div style="background:#fff;border-radius:8px;padding:18px 24px;box-shadow:0 2px 8px rgba(41,116,150,0.08);">
+        <p style="margin:0 0 12px;font-size:10.5pt;color:#1E556E;font-weight:bold;">Choose your mode:</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button id="btnOwn" onclick="setMode('own')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use my own organization</strong>
+            <span style="font-size:9.5pt;color:#297496;">Best if you work somewhere that already uses analytics tools</span>
+          </button>
+          <button id="btnTRU" onclick="setMode('tru')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use the Toys "R" Us example</strong>
+            <span style="font-size:9.5pt;color:#297496;">Best if you're new to analytics or prefer a guided example</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back button -->
+    <div id="backWrap" style="display:none;padding:8px 24px 0;max-width:720px;margin:0 auto;">
+      <button onclick="goBack()" style="background:#fff;border:1px solid #62b6d0;color:#297496;font-size:10pt;cursor:pointer;padding:8px 16px;border-radius:4px;">&#8592; Change mode</button>
+    </div>
+
+    <!-- Main Card -->
+    <div style="padding:16px 24px 24px;">
+      <div id="mainCard" style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;display:none;">
+
+        <!-- Investment screen -->
+        <div id="screen-invest">
+          <p style="font-size:11pt;color:#297496;font-weight:bold;margin:0 0 4px;" id="investNum">Investment 1</p>
+          <h3 style="font-size:14pt;color:#1E556E;margin:0 0 18px;" id="investPrompt">Select an analytics investment to evaluate.</h3>
+
+          <label style="font-size:10.5pt;color:#1E556E;display:block;margin-bottom:8px;" id="selectLabel">Choose an investment:</label>
+          <select id="investSelect" style="width:100%;padding:10px 12px;font-size:10.5pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;margin-bottom:16px;">
+            <option value="">-- Select one --</option>
+          </select>
+
+          <div id="truContext" style="display:none;border-left:4px solid #62b6d0;padding:12px 16px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:18px;font-size:10pt;color:#1E556E;"></div>
+
+          <div id="questions" style="display:none;">
+            <div style="border-top:1px solid #C4E4ED;padding-top:20px;">
+
+              <!-- Q1 -->
+              <div style="margin-bottom:24px;">
+                <p style="font-size:11pt;color:#1E556E;font-weight:bold;margin:0 0 4px;">Q1. How does this tool help the organization beat its competitors?</p>
+                <p style="font-size:9.5pt;color:#297496;margin:0 0 12px;">Think about why a customer would choose this organization over a rival. Does this tool support that reason?</p>
+                <div style="display:flex;flex-direction:column;gap:8px;" id="q1btns">
+                  <button onclick="setAnswer('q1',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">By keeping our costs low so we can offer better prices</button>
+                  <button onclick="setAnswer('q1',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">By making our products or services better than competitors</button>
+                  <button onclick="setAnswer('q1',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">By helping us serve a specific group of customers really well</button>
+                  <button onclick="setAnswer('q1',1,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">It doesn't clearly help us beat competitors</button>
+                </div>
+              </div>
+
+              <!-- Q2 -->
+              <div style="margin-bottom:24px;">
+                <p style="font-size:11pt;color:#1E556E;font-weight:bold;margin:0 0 4px;">Q2. What's the most important thing this tool helps the organization do?</p>
+                <p style="font-size:9.5pt;color:#297496;margin:0 0 12px;">Pick the outcome that best describes what this tool was built to improve.</p>
+                <div style="display:flex;flex-direction:column;gap:8px;" id="q2btns">
+                  <button onclick="setAnswer('q2',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">Bring in new customers</button>
+                  <button onclick="setAnswer('q2',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">Keep existing customers coming back</button>
+                  <button onclick="setAnswer('q2',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">Cut costs or run more efficiently</button>
+                  <button onclick="setAnswer('q2',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">Make better products or services</button>
+                  <button onclick="setAnswer('q2',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">Stay out of trouble (risk, compliance, legal)</button>
+                  <button onclick="setAnswer('q2',1,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">I'm not sure what it was built to improve</button>
+                </div>
+              </div>
+
+              <!-- Q3 -->
+              <div style="margin-bottom:24px;">
+                <p style="font-size:11pt;color:#1E556E;font-weight:bold;margin:0 0 4px;">Q3. What would happen if this tool disappeared tomorrow?</p>
+                <p style="font-size:9.5pt;color:#297496;margin:0 0 12px;">Ask yourself: would the organization make worse decisions without it?</p>
+                <div style="display:flex;flex-direction:column;gap:8px;" id="q3btns">
+                  <button onclick="setAnswer('q3',3,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">We'd be at a real disadvantage—decisions would get worse</button>
+                  <button onclick="setAnswer('q3',2,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">We'd probably find another way to get the same information</button>
+                  <button onclick="setAnswer('q3',1,this)" style="padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">Not much would change either way</button>
+                </div>
+              </div>
+
+            </div>
+            <button id="seeFeedbackBtn" onclick="showFeedback()" style="display:none;background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">See Feedback</button>
+          </div>
+        </div>
+
+        <!-- Feedback screen -->
+        <div id="screen-feedback" style="display:none;">
+          <p style="font-size:11pt;color:#297496;font-weight:bold;margin:0 0 8px;" id="feedbackInvestLabel"></p>
+          <div id="feedbackBox" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:20px;transition:border-color 0.2s;"></div>
+          <div id="scoreGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;"></div>
+          <button onclick="nextInvestment()" id="nextBtn" style="background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">Next Investment</button>
+        </div>
+
+        <!-- Summary screen -->
+        <div id="screen-summary" style="display:none;">
+          <h3 style="font-size:14pt;color:#1E556E;margin:0 0 6px;">Your Portfolio Picture</h3>
+          <p style="font-size:10.5pt;color:#1E556E;margin:0 0 20px;" id="summarySubhead"></p>
+          <div id="summaryGrid" style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;"></div>
+          <div id="summaryInsight" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;font-size:10.5pt;color:#1E556E;"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  <div id="dpCustomCss" data-external-style="/css/style.css">&nbsp;</div>
+</div>
+
+<script>
+var mode = null;
+var state = { current: 0, answers: [], investments: [] };
+var q1=null, q2=null, q3=null;
+
+var ownInvestments = [
+  'Executive dashboard','Sales or revenue report','Customer churn model',
+  'Demand forecasting tool','Marketing analytics platform','Operational KPI tracker',
+  'Customer segmentation model','Product recommendation engine',
+  'Financial reporting system','Supply chain analytics tool','Other'
+];
+
+var truData = [
+  {
+    name: 'Holiday season demand forecasting',
+    context: 'Toys "R" Us built a forecasting model to predict which toys would sell best during the holiday season. The model used historical sales data to guide purchasing decisions months in advance, helping the company stock the right products before peak demand hit.',
+    scores: [3,3,3],
+    q1hint: 'Toys "R" Us competed on having the widest selection of toys available. A forecasting model that ensured the right products were in stock before the holiday rush directly supported that competitive position.',
+    q2hint: 'Getting the right toys on shelves before peak season was one of the most critical things Toys "R" Us needed to do well. This tool was built specifically to improve that outcome.',
+    q3hint: 'Without this model, buying decisions would have relied on gut feel and lagging data. The company would have faced more stockouts on popular items and excess inventory on slow sellers—a meaningful competitive disadvantage.'
+  },
+  {
+    name: 'Inventory and supply chain tracker',
+    context: 'Toys "R" Us used inventory management systems to track stock levels across warehouses and stores. The system was effective at preventing stockouts but was not integrated with demand signals, online browsing data, or competitor pricing.',
+    scores: [2,2,2],
+    q1hint: 'Inventory management has a partial link to a selection-based strategy—you can\'t deliver broad selection if shelves are empty. But without integration with demand or online data, it only partially supported that strategy.',
+    q2hint: 'Avoiding stockouts is important for any retailer, especially during peak season. The tracker helped with this, but its narrow scope limited its value.',
+    q3hint: 'Removing it would have caused real operational pain—but competitors had similar systems. It was necessary, but it wasn\'t a source of competitive advantage on its own.'
+  },
+  {
+    name: 'Amazon partnership revenue report',
+    context: 'In 2000, Toys "R" Us partnered with Amazon to sell toys exclusively on the platform. Finance teams tracked revenue from the partnership monthly—but nobody was analyzing whether Amazon was allowing other toy sellers onto the platform, which violated their exclusivity agreement.',
+    scores: [1,1,1],
+    q1hint: 'The report tracked revenue but not competitive risk. For a company competing on selection, monitoring whether a key partner was undermining their exclusivity should have been a critical priority—and it wasn\'t.',
+    q2hint: 'If protecting the Amazon relationship was critical, a report that only tracked revenue—and missed the exclusivity breach—wasn\'t actually helping.',
+    q3hint: 'The report wasn\'t catching the problem that ultimately destroyed the partnership. Its disappearance wouldn\'t have changed the outcome.'
+  }
+];
+
+var feedbackMap = {
+  strong: {
+    label: 'Strong Strategic Fit',
+    color: '#1E556E',
+    bg: '#C6EFFC',
+    text: {
+      own: 'This investment has a clear connection to how your organization competes and what it needs to do well. It\'s earning its place in your portfolio—the kind of capability worth protecting, investing in, and building on over time.',
+      tru: 'This is what a well-aligned analytics investment looks like. The holiday forecasting model connected directly to what Toys "R" Us needed to win—having the right products available at the right time. It\'s a useful anchor as you evaluate the other two investments.'
+    }
+  },
+  partial: {
+    label: 'Room to Strengthen',
+    color: '#297496',
+    bg: '#C4E4ED',
+    text: {
+      own: 'This investment has real value, but the connection to your competitive strategy isn\'t as tight as it could be. That\'s worth exploring—sometimes a modest change in scope or focus is enough to turn a useful tool into a genuinely strategic one.',
+      tru: 'The inventory tracker had operational value, but it was doing less than it could have. Integrating it with demand signals and online data would have strengthened its strategic contribution considerably. This is a common pattern—tools that are useful but not yet connected to the decisions that matter most.'
+    }
+  },
+  weak: {
+    label: 'Worth a Closer Look',
+    color: '#922E1F',
+    bg: '#f5e8e6',
+    text: {
+      own: 'This investment doesn\'t have a clear connection to how your organization competes right now. That\'s not a verdict—it\'s a prompt. It\'s worth asking: what decision was this tool built to improve, and is it actually improving it? Sometimes the answer leads to a redesign. Sometimes it leads to a harder conversation about priorities.',
+      tru: 'The Amazon revenue report is a good example of analytics that tracked the wrong thing. Revenue looked fine—right up until the partnership collapsed. The data that would have mattered (whether Amazon was honoring the exclusivity agreement) was never collected. This is one of the most important lessons in analytics strategy: measuring the wrong thing with precision is not the same as being data-driven.'
+    }
+  }
+};
+
+function getAlignment(scores) {
+  var t = scores[0]+scores[1]+scores[2];
+  if (t>=8) return 'strong';
+  if (t>=5) return 'partial';
+  return 'weak';
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnOwn').style.borderColor = m==='own' ? '#297496' : '#62b6d0';
+  document.getElementById('btnOwn').style.background = m==='own' ? '#C6EFFC' : '#f5f9fb';
+  document.getElementById('btnTRU').style.borderColor = m==='tru' ? '#297496' : '#62b6d0';
+  document.getElementById('btnTRU').style.background = m==='tru' ? '#C6EFFC' : '#f5f9fb';
+  document.getElementById('mainCard').style.display = 'block';
+  document.getElementById('modeToggleWrap').style.display = 'none';
+  document.getElementById('backWrap').style.display = 'block';
+
+  var sel = document.getElementById('investSelect');
+  sel.innerHTML = '<option value="">-- Select one --</option>';
+  var list = m==='own' ? ownInvestments : truData.map(function(d){return d.name;});
+  list.forEach(function(inv){ sel.innerHTML += '<option>'+inv+'</option>'; });
+
+  document.getElementById('investPrompt').textContent = m==='own'
+    ? 'Select an analytics investment to evaluate.'
+    : 'Select a Toys "R" Us analytics investment to evaluate.';
+  updateProgress();
+}
+
+document.getElementById('investSelect').addEventListener('change', function() {
+  var v = this.value;
+  document.getElementById('questions').style.display = v ? 'block' : 'none';
+  q1=null; q2=null; q3=null;
+  resetButtons();
+  if (mode==='tru' && v) {
+    var d = truData.find(function(x){ return x.name===v; });
+    if (d) {
+      document.getElementById('truContext').style.display = 'block';
+      document.getElementById('truContext').innerHTML = '<strong style="display:block;margin-bottom:6px;color:#297496;">Context</strong>'+d.context;
+    }
+  } else {
+    document.getElementById('truContext').style.display = 'none';
+  }
+  checkReady();
+});
+
+function resetButtons() {
+  ['q1','q2','q3'].forEach(function(q) {
+    document.getElementById(q+'btns').querySelectorAll('button').forEach(function(b) {
+      b.style.background='#f5f9fb'; b.style.color='#1E556E'; b.style.borderColor='#62b6d0';
+    });
+  });
+}
+
+function setAnswer(q, val, btn) {
+  document.getElementById(q+'btns').querySelectorAll('button').forEach(function(b) {
+    b.style.background='#f5f9fb'; b.style.color='#1E556E'; b.style.borderColor='#62b6d0';
+  });
+  btn.style.background='#297496'; btn.style.color='#fff'; btn.style.borderColor='#297496';
+  if(q==='q1') q1=val;
+  if(q==='q2') q2=val;
+  if(q==='q3') q3=val;
+  checkReady();
+}
+
+function checkReady() {
+  var sel = document.getElementById('investSelect').value;
+  document.getElementById('seeFeedbackBtn').style.display = (sel&&q1&&q2&&q3) ? 'inline-block' : 'none';
+}
+
+function showFeedback() {
+  var invest = document.getElementById('investSelect').value;
+  var scores = [q1,q2,q3];
+  var truIdx = state.current;
+  var alignment = mode==='tru' ? getAlignment(truData[truIdx].scores) : getAlignment(scores);
+  var fb = feedbackMap[alignment];
+
+  state.investments.push(invest);
+  state.answers.push({scores:scores, alignment:alignment});
+
+  document.getElementById('feedbackInvestLabel').textContent = invest;
+  document.getElementById('feedbackBox').style.borderLeftColor = fb.color;
+
+  var html = '<p style="margin:0 0 8px;font-weight:bold;color:'+fb.color+';">'+fb.label+'</p>'+
+    '<p style="margin:0 0 10px;font-size:10.5pt;color:#1E556E;">'+fb.text[mode]+'</p>';
+
+  if (mode==='tru') {
+    var d = truData[truIdx];
+    html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #C4E4ED;">'+
+      '<p style="margin:0 0 8px;font-size:10pt;font-weight:bold;color:#297496;">How each question plays out:</p>'+
+      '<p style="margin:0 0 6px;font-size:10pt;color:#1E556E;"><strong>Q1:</strong> '+d.q1hint+'</p>'+
+      '<p style="margin:0 0 6px;font-size:10pt;color:#1E556E;"><strong>Q2:</strong> '+d.q2hint+'</p>'+
+      '<p style="margin:0;font-size:10pt;color:#1E556E;"><strong>Q3:</strong> '+d.q3hint+'</p></div>';
+  }
+
+  document.getElementById('feedbackBox').innerHTML = html;
+
+  var qLabels = ['Q1: Competitive link','Q2: Key outcome','Q3: Competitive impact'];
+  var scoreLabels = ['Weak','Partial','Strong'];
+  var displayScores = mode==='tru' ? truData[truIdx].scores : scores;
+  var grid = document.getElementById('scoreGrid');
+  grid.innerHTML = '';
+  displayScores.forEach(function(s,i) {
+    grid.innerHTML += '<div style="background:'+fb.bg+';border-radius:4px;padding:10px 12px;">'+
+      '<p style="margin:0 0 4px;font-size:9pt;color:#297496;font-weight:bold;">'+qLabels[i]+'</p>'+
+      '<p style="margin:0;font-size:10pt;color:#1E556E;">'+scoreLabels[s-1]+'</p></div>';
+  });
+
+  document.getElementById('nextBtn').textContent = state.answers.length===3 ? 'See Summary' : 'Next Investment';
+  document.getElementById('screen-invest').style.display = 'none';
+  document.getElementById('screen-feedback').style.display = 'block';
+  updateProgress();
+}
+
+function nextInvestment() {
+  if(state.answers.length===3){ showSummary(); return; }
+  state.current++;
+  resetInvestScreen();
+  document.getElementById('screen-feedback').style.display = 'none';
+  document.getElementById('screen-invest').style.display = 'block';
+  updateProgress();
+}
+
+function resetInvestScreen() {
+  document.getElementById('investNum').textContent = 'Investment '+(state.current+1);
+  document.getElementById('investSelect').value = '';
+  document.getElementById('questions').style.display = 'none';
+  document.getElementById('truContext').style.display = 'none';
+  q1=null; q2=null; q3=null;
+  resetButtons();
+  document.getElementById('seeFeedbackBtn').style.display = 'none';
+}
+
+function showSummary() {
+  document.getElementById('screen-feedback').style.display = 'none';
+  document.getElementById('screen-summary').style.display = 'block';
+
+  var counts = {strong:0, partial:0, weak:0};
+  state.answers.forEach(function(a){ counts[a.alignment]++; });
+
+  var grid = document.getElementById('summaryGrid');
+  grid.innerHTML = '';
+  state.answers.forEach(function(a,i) {
+    var fb = feedbackMap[a.alignment];
+    grid.innerHTML += '<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #C4E4ED;border-radius:6px;padding:14px 16px;">'+
+      '<div style="width:12px;height:12px;border-radius:50%;background:'+fb.color+';flex-shrink:0;"></div>'+
+      '<div><p style="margin:0 0 2px;font-size:10.5pt;color:#1E556E;font-weight:bold;">'+state.investments[i]+'</p>'+
+      '<p style="margin:0;font-size:10pt;color:'+fb.color+';">'+fb.label+'</p></div></div>';
+  });
+
+  // Build diagnostic summary subhead
+  var parts = [];
+  if (counts.strong>0) parts.push(counts.strong+' with strong strategic fit');
+  if (counts.partial>0) parts.push(counts.partial+' with room to strengthen');
+  if (counts.weak>0) parts.push(counts.weak+' worth a closer look');
+  document.getElementById('summarySubhead').textContent = 'Your portfolio has '+parts.join(', ')+'.';
+
+  var insight = '';
+  if (mode==='tru') {
+    insight = 'Toys "R" Us had a mix—one well-aligned investment, one that was useful but underutilized, and one that was tracking the wrong thing entirely. The lesson isn\'t that they had bad data. It\'s that the data they had wasn\'t connected to the strategic questions that would have saved the business. What would your next question be if you were a strategic advisor walking into this organization?';
+  } else if (counts.strong===3) {
+    insight = 'All three investments show strong strategic fit—your portfolio appears well-connected to your competitive priorities. The next question worth asking is whether these capabilities are genuinely hard for competitors to copy, or whether they\'re table stakes. That\'s what the next section of this module explores.';
+  } else if (counts.weak>=2) {
+    insight = 'Two or more of your investments are worth a closer look. That\'s actually a useful finding—it suggests there may be room to redirect analytics investment toward capabilities that connect more directly to how your organization competes. The goal isn\'t to cut tools; it\'s to make sure the ones you\'re building next are connected to the decisions that matter.';
+  } else {
+    insight = 'Your portfolio is a mix—which is the most common pattern in real organizations. Not every tool needs to pass all three tests. But as you think about where to invest next, the alignment framework gives you a way to evaluate new initiatives before they\'re built, not after.';
+  }
+
+  document.getElementById('summaryInsight').innerHTML = '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+insight+'</p>';
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('progressPct').textContent = '100%';
+  document.getElementById('progressLabel').textContent = 'Complete';
+}
+
+function updateProgress() {
+  var answered = state.answers.length;
+  var pct = Math.round((answered/3)*100);
+  document.getElementById('progressBar').style.width = pct+'%';
+  document.getElementById('progressPct').textContent = pct+'%';
+  if(answered<3) document.getElementById('progressLabel').textContent = 'Investment '+(answered+1)+' of 3';
+}
+
+function goBack() {
+  mode = null;
+  state = { current:0, answers:[], investments:[] };
+  q1=null; q2=null; q3=null;
+  document.getElementById('mainCard').style.display = 'none';
+  document.getElementById('modeToggleWrap').style.display = 'block';
+  document.getElementById('backWrap').style.display = 'none';
+  document.getElementById('btnOwn').style.borderColor = '#62b6d0';
+  document.getElementById('btnOwn').style.background = '#f5f9fb';
+  document.getElementById('btnTRU').style.borderColor = '#62b6d0';
+  document.getElementById('btnTRU').style.background = '#f5f9fb';
+  document.getElementById('screen-invest').style.display = 'block';
+  document.getElementById('screen-feedback').style.display = 'none';
+  document.getElementById('screen-summary').style.display = 'none';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+  document.getElementById('progressLabel').textContent = 'Investment 1 of 3';
+}
+</script>
+
+</div>
+</body>
+</html>
