@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Implementation Readiness</title>
+</head>
+<body style="margin:0;padding:0;font-family:Georgia,serif;background:#f5f9fb;color:#1E556E;">
+
+<div id="dp-wrapper" class="dp-wrapper">
+  <p class="dp-progress-placeholder dp-module-progress-completion" style="display:none;margin-top:12px;padding-top:5px;">Module Item Completion (browser only)</p>
+  <div>
+
+    <!-- Progress Bar -->
+    <div style="padding:20px 24px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:10pt;color:#297496;" id="progressLabel">Factor 1 of 5</span>
+        <span style="font-size:10pt;color:#297496;" id="progressPct">0%</span>
+      </div>
+      <div style="background:#E5E4E4;border-radius:4px;height:8px;">
+        <div id="progressBar" style="background:#62b6d0;height:8px;border-radius:4px;width:0%;transition:width 0.4s;"></div>
+      </div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div id="modeToggleWrap" style="padding:16px 24px 0;max-width:720px;margin:0 auto;">
+      <div style="background:#fff;border-radius:8px;padding:18px 24px;box-shadow:0 2px 8px rgba(41,116,150,0.08);">
+        <p style="margin:0 0 12px;font-size:10.5pt;color:#1E556E;font-weight:bold;">Choose your mode:</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button id="btnOwn" onclick="setMode('own')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use my own organization</strong>
+            <span style="font-size:9.5pt;color:#297496;">Best if you have a real analytics initiative to evaluate</span>
+          </button>
+          <button id="btnShop" onclick="setMode('shopflow')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use the ShopFlow example</strong>
+            <span style="font-size:9.5pt;color:#297496;">Best if you're newer to analytics or don't have an initiative to draw from</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back button -->
+    <div id="backWrap" style="display:none;padding:8px 24px 0;max-width:720px;margin:0 auto;">
+      <button onclick="goBack()" style="background:#fff;border:1px solid #62b6d0;color:#297496;font-size:10pt;cursor:pointer;padding:8px 16px;border-radius:4px;">&#8592; Change mode</button>
+    </div>
+
+    <!-- Initiative naming screen -->
+    <div id="screen-name" style="display:none;padding:16px 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <p style="font-size:11pt;color:#297496;font-weight:bold;margin:0 0 4px;">Before you begin</p>
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 12px;" id="namePrompt"></h3>
+        <p style="font-size:10pt;color:#297496;margin:0 0 16px;" id="nameHelper"></p>
+        <div id="shopflowInitContext" style="display:none;border-left:4px solid #62b6d0;padding:12px 16px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:18px;font-size:10pt;color:#1E556E;"></div>
+        <select id="initiativeSelect" style="width:100%;padding:10px 12px;font-size:10.5pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;margin-bottom:20px;">
+          <option value="">-- Select one --</option>
+        </select>
+        <button id="beginBtn" onclick="beginAssessment()" style="display:none;background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">Begin Assessment</button>
+      </div>
+    </div>
+
+    <!-- Factor rating screen -->
+    <div id="screen-factor" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <p style="font-size:10pt;color:#297496;font-weight:bold;margin:0 0 2px;" id="factorLabel"></p>
+        <p style="font-size:9.5pt;color:#b3b6b7;margin:0 0 14px;" id="initiativeTag"></p>
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 6px;" id="factorQuestion"></h3>
+        <p style="font-size:9.5pt;color:#297496;margin:0 0 18px;" id="factorHelper"></p>
+        <div id="shopflowFactorContext" style="display:none;border-left:4px solid #62b6d0;padding:12px 16px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:20px;font-size:10pt;color:#1E556E;"></div>
+
+        <!-- Slider -->
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:9.5pt;color:#297496;">1 — Major obstacle</span>
+            <span style="font-size:9.5pt;color:#297496;">5 — Strong foundation</span>
+          </div>
+          <input type="range" id="factorSlider" min="1" max="5" value="3" oninput="updateSlider(this.value)" style="width:100%;accent-color:#297496;cursor:pointer;height:6px;">
+          <div style="text-align:center;margin-top:10px;">
+            <span id="sliderValue" style="font-size:18pt;font-weight:bold;color:#297496;">3</span>
+            <span id="sliderLabel" style="font-size:10pt;color:#1E556E;margin-left:8px;"></span>
+          </div>
+        </div>
+
+        <button id="seeFactorFeedback" onclick="showFactorFeedback()" style="background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;margin-top:16px;">See Feedback</button>
+      </div>
+    </div>
+
+    <!-- Factor feedback screen -->
+    <div id="screen-factor-feedback" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <p style="font-size:10pt;color:#297496;font-weight:bold;margin:0 0 2px;" id="ffFactorLabel"></p>
+        <p style="font-size:9.5pt;color:#b3b6b7;margin:0 0 14px;" id="ffInitiativeTag"></p>
+        <div id="ffFeedbackBox" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:20px;"></div>
+        <div id="shopflowFactorComparison" style="display:none;border:1px solid #C4E4ED;border-radius:6px;padding:16px;margin-bottom:20px;background:#f5f9fb;">
+          <p style="margin:0 0 8px;font-size:10pt;font-weight:bold;color:#297496;">How ShopFlow scores on this factor:</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span id="shopFactorBadge" style="padding:4px 12px;border-radius:12px;font-size:9.5pt;font-weight:bold;"></span>
+            <span id="shopFactorMatch" style="font-size:10pt;color:#1E556E;"></span>
+          </div>
+          <p style="margin:0;font-size:10pt;color:#1E556E;" id="shopFactorExplain"></p>
+        </div>
+        <button onclick="nextFactor()" id="nextFactorBtn" style="background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">Next Factor</button>
+      </div>
+    </div>
+
+    <!-- Summary screen -->
+    <div id="screen-summary" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 4px;">Implementation Readiness Result</h3>
+        <p style="font-size:10pt;color:#b3b6b7;margin:0 0 20px;" id="summaryInitTag"></p>
+        <div id="summaryScoreCard" style="border-radius:8px;padding:20px 24px;margin-bottom:24px;text-align:center;"></div>
+        <div id="summaryFactorGrid" style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;"></div>
+        <div id="summaryRiskBox" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:16px;"></div>
+        <div id="shopflowSummaryNote" style="display:none;border:1px solid #C4E4ED;border-radius:6px;padding:16px;background:#f5f9fb;"></div>
+      </div>
+    </div>
+
+  </div>
+  <div id="dpCustomCss" data-external-style="/css/style.css">&nbsp;</div>
+</div>
+
+<script>
+var mode = null;
+var initiative = '';
+var scores = [];
+var currentFactor = 0;
+
+var sliderLabels = ['Major obstacle','Significant concern','Some concern','Mostly solid','Strong foundation'];
+
+var ownInitiatives = [
+  'New analytics dashboard','Customer churn model rollout','Demand forecasting implementation',
+  'KPI framework redesign','Data warehouse migration','Marketing analytics platform',
+  'Executive reporting overhaul','Sales forecasting tool','Other'
+];
+
+var factors = [
+  {
+    label: 'Executive Sponsorship',
+    question: 'Is there a senior leader actively championing this initiative?',
+    helper: 'Think about whether someone with real authority is willing to remove obstacles, allocate resources, and publicly support this initiative when resistance comes up.',
+    shopflowContext: 'ShopFlow\'s CEO mentioned the CLV model in a team meeting once but hasn\'t followed up. The project is being driven by a junior data analyst with no direct line to leadership.',
+    shopflowScore: 1,
+    shopflowExplain: 'Without executive sponsorship, the CLV model is unlikely to change how decisions are made. When the sales team pushes back — and they will — there\'s nobody with enough authority to insist on adoption.',
+    feedbackLow: 'Without a senior champion, analytics initiatives tend to stall when they hit organizational resistance — and they always hit resistance. This is one of the most common reasons implementations fail. Securing executive sponsorship before moving forward is worth prioritizing.',
+    feedbackMid: 'Some leadership support is in place, but it may not be enough when the initiative faces pushback. It\'s worth clarifying who will advocate for this when resistance comes up and what authority they have to act.',
+    feedbackHigh: 'Strong executive sponsorship is a significant asset. Having a senior leader who will remove obstacles and champion adoption dramatically increases the odds of successful implementation.'
+  },
+  {
+    label: 'User Trust',
+    question: 'Do the people who will use this analytics output trust and understand it?',
+    helper: 'Think about whether intended users believe the outputs are accurate, understand how they were produced, and feel confident acting on them.',
+    shopflowContext: 'ShopFlow\'s marketing manager has expressed skepticism about the CLV model, saying she prefers to rely on her own judgment about which customers to prioritize. She hasn\'t been involved in building the model.',
+    shopflowScore: 1,
+    shopflowExplain: 'User trust is a critical gap here. If the marketing manager doesn\'t trust the output, she won\'t use it — regardless of how accurate the model is. Building trust requires involving users early, explaining how the model works, and demonstrating its accuracy over time.',
+    feedbackLow: 'Low user trust is one of the most reliable predictors of implementation failure. Even a technically excellent model is worthless if the people who need to act on it don\'t believe in it. Building trust requires involvement, transparency, and demonstrated accuracy over time — not just a launch presentation.',
+    feedbackMid: 'Some users are on board, but skepticism remains. It\'s worth identifying who the skeptics are and what would build their confidence — whether that\'s more transparency about how the model works, early wins, or involving them in the process.',
+    feedbackHigh: 'High user trust is a strong foundation. Users who believe in the outputs are far more likely to act on them. The next challenge is making sure that trust is maintained as the model evolves.'
+  },
+  {
+    label: 'Workflow Integration',
+    question: 'Is this analytics capability embedded in how decisions are actually made?',
+    helper: 'Think about whether using this tool requires extra steps outside of normal work, or whether it\'s built into the processes people already follow.',
+    shopflowContext: 'The CLV model outputs are delivered in a separate spreadsheet that marketing staff would need to consult manually before each campaign. It hasn\'t been integrated into the campaign planning tool the team already uses.',
+    shopflowScore: 2,
+    shopflowExplain: 'Requiring users to consult a separate spreadsheet is a classic last-mile problem. Even if users trust the model, the extra step creates friction that makes defaulting to old habits easy. Integrating outputs directly into the campaign planning tool would dramatically increase adoption.',
+    feedbackLow: 'If using the analytics requires extra steps outside of normal workflows, people will default to what they already know. Successful implementation almost always requires redesigning workflows around the analytics — not adding the analytics on top of existing processes.',
+    feedbackMid: 'Partial integration is a good start, but gaps in the workflow create opportunities for people to bypass the analytics. Mapping out every point where a user has to go out of their way to use the tool will reveal where the biggest friction points are.',
+    feedbackHigh: 'Strong workflow integration is one of the most powerful enablers of adoption. When using the analytics is the path of least resistance, it becomes the default — which is exactly where you want it.'
+  },
+  {
+    label: 'Data Literacy',
+    question: 'Do the people who will use this have the skills to interpret the outputs correctly?',
+    helper: 'Think about whether users understand what the outputs mean, what their limitations are, and how to translate them into decisions.',
+    shopflowContext: 'ShopFlow\'s marketing team has strong campaign instincts but limited experience working with predictive model outputs. Nobody on the team has been trained to interpret CLV scores or understand confidence intervals.',
+    shopflowScore: 2,
+    shopflowExplain: 'Data literacy gaps don\'t just reduce adoption — they create risk. Users who misinterpret model outputs can make worse decisions than they would have without the model at all. Training doesn\'t need to be deep technical education; it needs to cover what the outputs mean in plain language and how to use them in practice.',
+    feedbackLow: 'Low data literacy is a significant risk — not just for adoption, but for decision quality. Users who misinterpret outputs can make worse decisions than they would have without the analytics at all. Investing in accessible training before launch matters more than most organizations realize.',
+    feedbackMid: 'Some data literacy exists, but gaps remain. It\'s worth identifying the specific interpretation skills users need for this particular tool and designing targeted training around those gaps rather than generic data education.',
+    feedbackHigh: 'Strong data literacy means users can interpret outputs correctly and push back when something doesn\'t look right. That\'s a major asset — it means the analytics will be used intelligently, not just mechanically.'
+  },
+  {
+    label: 'Change Management',
+    question: 'Is there a plan to manage resistance and build adoption over time?',
+    helper: 'Think about whether there\'s a deliberate plan for communicating the change, addressing concerns, supporting users through the transition, and measuring adoption.',
+    shopflowContext: 'No formal change management plan exists for the CLV rollout. The analyst plans to send an email announcing the model when it\'s ready and make the spreadsheet available on a shared drive.',
+    shopflowScore: 1,
+    shopflowExplain: 'An announcement email is not a change management plan. Resistance to analytics implementations is predictable and normal — it needs to be anticipated and addressed deliberately. Without a plan for communication, stakeholder engagement, and adoption tracking, the initiative is likely to be ignored rather than rejected outright.',
+    feedbackLow: 'Without a change management plan, resistance will go unaddressed and adoption will be left to chance. Analytics implementations almost always encounter pushback — the question is whether that pushback has been anticipated and planned for. This is worth addressing before launch, not after.',
+    feedbackMid: 'Some change management thinking is in place, but a more deliberate plan would reduce risk. Identifying the likely sources of resistance and designing specific responses to each is more effective than general communication.',
+    feedbackHigh: 'A strong change management plan is a significant advantage. Anticipating resistance and having specific strategies to address it means implementation problems get solved before they derail adoption.'
+  }
+];
+
+var tierMap = {
+  high: { label: 'Strong Foundation', color: '#1E556E', bg: '#C6EFFC', range: '21–25', desc: 'Your initiative has strong readiness across most factors. The conditions for successful implementation are largely in place — the priority now is executing well and monitoring adoption closely.' },
+  mid: { label: 'Some Risks to Address', color: '#297496', bg: '#C4E4ED', range: '15–20', desc: 'Your initiative has a reasonable foundation, but some factors need attention before or during rollout. The risks are manageable — but left unaddressed, they\'re likely to slow adoption or limit impact.' },
+  low: { label: 'Significant Obstacles', color: '#922E1F', bg: '#f5e8e6', range: 'Below 15', desc: 'Your initiative faces meaningful readiness gaps. Investing further in the analytics capability before addressing these obstacles is likely to result in a tool that exists but doesn\'t get used. Readiness work should come first.' }
+};
+
+function getTier(total) {
+  if (total >= 21) return 'high';
+  if (total >= 15) return 'mid';
+  return 'low';
+}
+
+function getFactorTier(score) {
+  if (score >= 4) return { label: 'Strength', color: '#1E556E', bg: '#C6EFFC' };
+  if (score >= 3) return { label: 'Watch Item', color: '#297496', bg: '#C4E4ED' };
+  return { label: 'Risk', color: '#922E1F', bg: '#f5e8e6' };
+}
+
+function updateSlider(val) {
+  document.getElementById('sliderValue').textContent = val;
+  document.getElementById('sliderLabel').textContent = sliderLabels[val-1];
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnOwn').style.borderColor = m==='own'?'#297496':'#62b6d0';
+  document.getElementById('btnOwn').style.background = m==='own'?'#C6EFFC':'#f5f9fb';
+  document.getElementById('btnShop').style.borderColor = m==='shopflow'?'#297496':'#62b6d0';
+  document.getElementById('btnShop').style.background = m==='shopflow'?'#C6EFFC':'#f5f9fb';
+  document.getElementById('modeToggleWrap').style.display='none';
+  document.getElementById('backWrap').style.display='block';
+  document.getElementById('screen-name').style.display='block';
+
+  var sel = document.getElementById('initiativeSelect');
+  sel.innerHTML='<option value="">-- Select one --</option>';
+
+  if (m==='own') {
+    document.getElementById('namePrompt').textContent='Which analytics initiative will you evaluate?';
+    document.getElementById('nameHelper').textContent='Think about an initiative that\'s planned, in progress, or recently completed — a new dashboard, model rollout, or any project where analytics needs to change how people work.';
+    document.getElementById('shopflowInitContext').style.display='none';
+    document.getElementById('initiativeSelect').style.display='block';
+    document.getElementById('beginBtn').style.display='none';
+    ownInitiatives.forEach(function(i){ sel.innerHTML+='<option>'+i+'</option>'; });
+  } else {
+    initiative = 'ShopFlow CLV model rollout';
+    document.getElementById('namePrompt').textContent='You\'ll evaluate ShopFlow\'s analytics initiative.';
+    document.getElementById('nameHelper').textContent='You\'ll rate each readiness factor yourself, then see how ShopFlow actually scores.';
+    document.getElementById('shopflowInitContext').style.display='block';
+    document.getElementById('shopflowInitContext').innerHTML='<strong style="display:block;margin-bottom:6px;color:#297496;">The initiative</strong>ShopFlow is rolling out a customer lifetime value (CLV) model to help their marketing team prioritize which customers to target for retention campaigns. The model was built by a junior data analyst and is ready to launch.<br><br><strong style="color:#297496;">Initiative you\'ll evaluate:</strong> CLV model rollout';
+    document.getElementById('initiativeSelect').style.display='none';
+    document.getElementById('beginBtn').style.display='inline-block';
+  }
+}
+
+document.getElementById('initiativeSelect').addEventListener('change', function() {
+  initiative = this.value;
+  document.getElementById('beginBtn').style.display = this.value ? 'inline-block' : 'none';
+});
+
+function beginAssessment() {
+  document.getElementById('screen-name').style.display='none';
+  currentFactor=0; scores=[];
+  showFactor();
+}
+
+function showFactor() {
+  var f = factors[currentFactor];
+  document.getElementById('screen-factor').style.display='block';
+  document.getElementById('factorLabel').textContent='Factor '+(currentFactor+1)+' of 5: '+f.label;
+  document.getElementById('initiativeTag').textContent=initiative;
+  document.getElementById('factorQuestion').textContent=f.question;
+  document.getElementById('factorHelper').textContent=f.helper;
+
+  if (mode==='shopflow') {
+    document.getElementById('shopflowFactorContext').style.display='block';
+    document.getElementById('shopflowFactorContext').innerHTML='<strong style="display:block;margin-bottom:6px;color:#297496;">Context</strong>'+f.shopflowContext;
+  } else {
+    document.getElementById('shopflowFactorContext').style.display='none';
+  }
+
+  var slider = document.getElementById('factorSlider');
+  slider.value = 3;
+  updateSlider(3);
+  updateProgress();
+}
+
+function showFactorFeedback() {
+  var val = parseInt(document.getElementById('factorSlider').value);
+  var f = factors[currentFactor];
+  scores.push(val);
+
+  document.getElementById('screen-factor').style.display='none';
+  document.getElementById('screen-factor-feedback').style.display='block';
+  document.getElementById('ffFactorLabel').textContent='Factor '+(currentFactor+1)+' of 5: '+f.label;
+  document.getElementById('ffInitiativeTag').textContent=initiative;
+
+  var ft = getFactorTier(val);
+  var fb = document.getElementById('ffFeedbackBox');
+  fb.style.borderLeftColor = ft.color;
+  var feedbackText = val<=2 ? f.feedbackLow : val===3 ? f.feedbackMid : f.feedbackHigh;
+  fb.innerHTML='<p style="margin:0 0 6px;font-weight:bold;color:'+ft.color+';">'+ft.label+' ('+val+'/5)</p>'+
+    '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+feedbackText+'</p>';
+
+  var shopComp = document.getElementById('shopflowFactorComparison');
+  if (mode==='shopflow') {
+    shopComp.style.display='block';
+    var sft = getFactorTier(f.shopflowScore);
+    document.getElementById('shopFactorBadge').textContent=sft.label+' ('+f.shopflowScore+'/5)';
+    document.getElementById('shopFactorBadge').style.background=sft.bg;
+    document.getElementById('shopFactorBadge').style.color=sft.color;
+    document.getElementById('shopFactorMatch').textContent=val===f.shopflowScore?'Your rating matched.':val>f.shopflowScore?'You rated this higher than ShopFlow actually scores.':'You rated this lower than ShopFlow actually scores.';
+    document.getElementById('shopFactorExplain').textContent=f.shopflowExplain;
+  } else {
+    shopComp.style.display='none';
+  }
+
+  var isLast = currentFactor===4;
+  document.getElementById('nextFactorBtn').textContent = isLast ? 'See My Result' : 'Next Factor';
+  updateProgress();
+}
+
+function nextFactor() {
+  document.getElementById('screen-factor-feedback').style.display='none';
+  if (currentFactor===4) { showSummary(); return; }
+  currentFactor++;
+  showFactor();
+}
+
+function showSummary() {
+  document.getElementById('screen-summary').style.display='block';
+  document.getElementById('progressBar').style.width='100%';
+  document.getElementById('progressPct').textContent='100%';
+  document.getElementById('progressLabel').textContent='Complete';
+  document.getElementById('summaryInitTag').textContent=initiative;
+
+  var total = scores.reduce(function(a,b){return a+b;},0);
+  var tier = getTier(total);
+  var t = tierMap[tier];
+
+  var sc = document.getElementById('summaryScoreCard');
+  sc.style.background=t.bg;
+  sc.innerHTML='<p style="margin:0 0 4px;font-size:11pt;font-weight:bold;color:'+t.color+';">'+t.label+'</p>'+
+    '<p style="margin:0 0 8px;font-size:28pt;font-weight:bold;color:'+t.color+';">'+total+' / 25</p>'+
+    '<p style="margin:0;font-size:10pt;color:#1E556E;">'+t.desc+'</p>';
+
+  var grid = document.getElementById('summaryFactorGrid');
+  grid.innerHTML='';
+  factors.forEach(function(f,i){
+    var ft = getFactorTier(scores[i]);
+    grid.innerHTML+='<div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #C4E4ED;border-radius:6px;padding:12px 16px;">'+
+      '<div style="display:flex;align-items:center;gap:12px;">'+
+      '<div style="width:10px;height:10px;border-radius:50%;background:'+ft.color+';flex-shrink:0;"></div>'+
+      '<p style="margin:0;font-size:10.5pt;color:#1E556E;font-weight:bold;">'+f.label+'</p></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;">'+
+      '<span style="font-size:10pt;color:'+ft.color+';font-weight:bold;">'+scores[i]+'/5</span>'+
+      '<span style="font-size:9pt;padding:3px 10px;border-radius:10px;background:'+ft.bg+';color:'+ft.color+';">'+ft.label+'</span>'+
+      '</div></div>';
+  });
+
+  // Identify biggest risks
+  var risks = factors.map(function(f,i){ return {label:f.label, score:scores[i]}; })
+    .filter(function(f){ return f.score<=2; })
+    .sort(function(a,b){ return a.score-b.score; });
+
+  var rb = document.getElementById('summaryRiskBox');
+  if (risks.length===0) {
+    rb.style.borderLeftColor='#1E556E';
+    rb.innerHTML='<p style="margin:0 0 6px;font-size:10pt;font-weight:bold;color:#1E556E;">No major risk factors identified</p>'+
+      '<p style="margin:0;font-size:10.5pt;color:#1E556E;">Your initiative doesn\'t have any factors rated as major obstacles. Focus on maintaining the strengths you\'ve identified and monitoring adoption as the initiative rolls out.</p>';
+  } else {
+    var riskList = risks.map(function(r){ return r.label; }).join(', ');
+    rb.style.borderLeftColor='#922E1F';
+    rb.innerHTML='<p style="margin:0 0 6px;font-size:10pt;font-weight:bold;color:#922E1F;">Biggest risks to address: '+riskList+'</p>'+
+      '<p style="margin:0;font-size:10.5pt;color:#1E556E;">These factors scored as major obstacles. Investing further in the analytics capability before addressing them is likely to result in a tool that doesn\'t get used. Readiness work on these areas should come before or alongside the capability build — not after.</p>';
+  }
+
+  if (mode==='shopflow') {
+    var shopTotal = factors.reduce(function(a,f){ return a+f.shopflowScore; },0);
+    var shopTier = tierMap[getTier(shopTotal)];
+    document.getElementById('shopflowSummaryNote').style.display='block';
+    document.getElementById('shopflowSummaryNote').innerHTML=
+      '<p style="margin:0 0 8px;font-size:10pt;font-weight:bold;color:#297496;">ShopFlow\'s full readiness score:</p>'+
+      '<p style="margin:0 0 6px;font-size:10.5pt;font-weight:bold;color:'+shopTier.color+';">'+shopTotal+' / 25 — '+shopTier.label+'</p>'+
+      '<p style="margin:0;font-size:10pt;color:#1E556E;">ShopFlow scores low on executive sponsorship, user trust, and change management — and only partially on workflow integration and data literacy. The CLV model may be technically sound, but the implementation conditions are not in place. If it launches without addressing these gaps, it will almost certainly be ignored. The biggest lesson: a great analytics tool and a successful analytics implementation are two very different things.</p>';
+  }
+}
+
+function updateProgress() {
+  var pct = Math.round((currentFactor/5)*100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressLabel').textContent='Factor '+(currentFactor+1)+' of 5';
+}
+
+function goBack() {
+  mode=null; initiative=''; scores=[]; currentFactor=0;
+  ['screen-name','screen-factor','screen-factor-feedback','screen-summary'].forEach(function(id){
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('modeToggleWrap').style.display='block';
+  document.getElementById('backWrap').style.display='none';
+  ['btnOwn','btnShop'].forEach(function(id){
+    document.getElementById(id).style.borderColor='#62b6d0';
+    document.getElementById(id).style.background='#f5f9fb';
+  });
+  document.getElementById('initiativeSelect').value='';
+  document.getElementById('beginBtn').style.display='none';
+  document.getElementById('progressBar').style.width='0%';
+  document.getElementById('progressPct').textContent='0%';
+  document.getElementById('progressLabel').textContent='Factor 1 of 5';
+}
+</script>
+
+</div>
+</body>
+</html>
