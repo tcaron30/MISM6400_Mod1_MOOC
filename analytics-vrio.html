@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics VRIO</title>
+</head>
+<body style="margin:0;padding:0;font-family:Georgia,serif;background:#f5f9fb;color:#1E556E;">
+
+<div id="dp-wrapper" class="dp-wrapper">
+  <p class="dp-progress-placeholder dp-module-progress-completion" style="display:none;margin-top:12px;padding-top:5px;">Module Item Completion (browser only)</p>
+  <div>
+
+    <!-- Progress Bar -->
+    <div style="padding:20px 24px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:10pt;color:#297496;" id="progressLabel">Step 1 of 4</span>
+        <span style="font-size:10pt;color:#297496;" id="progressPct">0%</span>
+      </div>
+      <div style="background:#E5E4E4;border-radius:4px;height:8px;">
+        <div id="progressBar" style="background:#62b6d0;height:8px;border-radius:4px;width:0%;transition:width 0.4s;"></div>
+      </div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div id="modeToggleWrap" style="padding:16px 24px 0;max-width:720px;margin:0 auto;">
+      <div style="background:#fff;border-radius:8px;padding:18px 24px;box-shadow:0 2px 8px rgba(41,116,150,0.08);">
+        <p style="margin:0 0 12px;font-size:10.5pt;color:#1E556E;font-weight:bold;">Choose your mode:</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button id="btnOwn" onclick="setMode('own')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use my own organization</strong>
+            <span style="font-size:9.5pt;color:#297496;">Best if you have a real analytics capability to evaluate</span>
+          </button>
+          <button id="btnShop" onclick="setMode('shopflow')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use the ShopFlow example</strong>
+            <span style="font-size:9.5pt;color:#297496;">Best if you're newer to analytics or don't have an organization to draw from</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back button -->
+    <div id="backWrap" style="display:none;padding:8px 24px 0;max-width:720px;margin:0 auto;">
+      <button onclick="goBack()" style="background:#fff;border:1px solid #62b6d0;color:#297496;font-size:10pt;cursor:pointer;padding:8px 16px;border-radius:4px;">&#8592; Change mode</button>
+    </div>
+
+    <!-- Capability naming screen -->
+    <div id="screen-name" style="display:none;padding:16px 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <p style="font-size:11pt;color:#297496;font-weight:bold;margin:0 0 4px;">Before you begin</p>
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 12px;" id="namePrompt"></h3>
+        <p style="font-size:10pt;color:#297496;margin:0 0 16px;" id="nameHelper"></p>
+        <div id="shopflowContext" style="display:none;border-left:4px solid #62b6d0;padding:12px 16px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:18px;font-size:10pt;color:#1E556E;"></div>
+        <select id="capabilitySelect" style="width:100%;padding:10px 12px;font-size:10.5pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;margin-bottom:20px;">
+          <option value="">-- Select one --</option>
+        </select>
+        <button id="beginBtn" onclick="beginVRIO()" style="display:none;background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">Begin Assessment</button>
+      </div>
+    </div>
+
+    <!-- VRIO question screen -->
+    <div id="screen-question" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <p style="font-size:10pt;color:#297496;font-weight:bold;margin:0 0 2px;" id="criterionLabel"></p>
+        <p style="font-size:9.5pt;color:#b3b6b7;margin:0 0 14px;" id="capabilityTag"></p>
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 6px;" id="questionText"></h3>
+        <p style="font-size:9.5pt;color:#297496;margin:0 0 18px;" id="questionHelper"></p>
+
+        <div id="shopflowQuestionContext" style="display:none;border-left:4px solid #62b6d0;padding:12px 16px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:18px;font-size:10pt;color:#1E556E;"></div>
+
+        <div id="yesNoPanel" style="display:flex;gap:12px;margin-bottom:20px;">
+          <button onclick="answerYesNo('yes',this)" id="btnYes" style="flex:1;padding:12px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10.5pt;cursor:pointer;">Yes</button>
+          <button onclick="answerYesNo('no',this)" id="btnNo" style="flex:1;padding:12px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10.5pt;cursor:pointer;">No</button>
+        </div>
+
+        <div id="whyPanel" style="display:none;">
+          <p style="font-size:10.5pt;color:#1E556E;font-weight:bold;margin:0 0 10px;" id="whyQuestion"></p>
+          <div style="display:flex;flex-direction:column;gap:8px;" id="whyBtns"></div>
+        </div>
+
+        <button id="seeCriterionFeedback" onclick="showCriterionFeedback()" style="display:none;background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;margin-top:16px;">See Feedback</button>
+      </div>
+    </div>
+
+    <!-- Criterion feedback screen -->
+    <div id="screen-criterion-feedback" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <p style="font-size:10pt;color:#297496;font-weight:bold;margin:0 0 2px;" id="cfCriterionLabel"></p>
+        <p style="font-size:9.5pt;color:#b3b6b7;margin:0 0 14px;" id="cfCapabilityTag"></p>
+        <div id="cfFeedbackBox" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:20px;"></div>
+        <div id="shopflowComparison" style="display:none;border:1px solid #C4E4ED;border-radius:6px;padding:16px;margin-bottom:20px;background:#f5f9fb;">
+          <p style="margin:0 0 8px;font-size:10pt;font-weight:bold;color:#297496;">How ShopFlow actually scores on this criterion:</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span id="shopActualBadge" style="padding:4px 12px;border-radius:12px;font-size:9.5pt;font-weight:bold;"></span>
+            <span id="shopActualMatch" style="font-size:10pt;color:#1E556E;"></span>
+          </div>
+          <p style="margin:0;font-size:10pt;color:#1E556E;" id="shopActualExplain"></p>
+        </div>
+        <button onclick="nextCriterion()" id="nextCriterionBtn" style="background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">Next Criterion</button>
+      </div>
+    </div>
+
+    <!-- Final result screen -->
+    <div id="screen-result" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 4px;">Your VRIO Result</h3>
+        <p style="font-size:10pt;color:#b3b6b7;margin:0 0 20px;" id="resultCapabilityTag"></p>
+        <div id="resultGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:24px;"></div>
+        <div id="resultCard" style="border-left:4px solid #297496;padding:16px 18px;border-radius:0 6px 6px 0;margin-bottom:20px;"></div>
+        <div id="shopflowFinalComparison" style="display:none;border:1px solid #C4E4ED;border-radius:6px;padding:16px;background:#f5f9fb;margin-bottom:20px;">
+          <p style="margin:0 0 8px;font-size:10pt;font-weight:bold;color:#297496;">ShopFlow's full VRIO result:</p>
+          <p style="margin:0 0 6px;font-size:10.5pt;font-weight:bold;color:#b3b6b7;">Competitive Parity</p>
+          <p style="margin:0;font-size:10pt;color:#1E556E;">ShopFlow's purchase history dashboard scores Yes/No/No/Yes. It's valuable and well-used, but it's built on standard e-commerce platform features that any competitor can access. That makes it necessary to compete, but not a source of advantage. ShopFlow's next analytics investment should target something harder to replicate — like a personalization model trained on their own customer data over time.</p>
+        </div>
+        <div id="strategyImplication" style="border-left:4px solid #62b6d0;padding:14px 18px;background:#f5f9fb;border-radius:0 6px 6px 0;"></div>
+      </div>
+    </div>
+
+  </div>
+  <div id="dpCustomCss" data-external-style="/css/style.css">&nbsp;</div>
+</div>
+
+<script>
+var mode = null;
+var capability = '';
+var answers = {};
+var currentCriterion = 0;
+var currentYesNo = null;
+var currentWhy = null;
+var criteria = ['V','R','I','O'];
+
+var ownCapabilities = [
+  'Customer churn prediction model','Demand forecasting tool','Executive dashboard',
+  'Customer segmentation model','Marketing analytics platform','Product recommendation engine',
+  'Supply chain analytics tool','Sales forecasting system','Operational KPI tracker',
+  'A/B testing platform','Other'
+];
+
+var criteriaData = {
+  V: {
+    label: 'Valuable',
+    question: 'Does this analytics capability create real value for the organization?',
+    helper: 'Think about whether this capability helps the organization compete, serve customers better, or make meaningfully better decisions.',
+    shopflowContext: 'ShopFlow\'s marketing team uses a customer purchase history dashboard to track what customers bought, how often they buy, and their average order value. They use it to plan promotions and email campaigns.',
+    shopflowActual: 'yes',
+    shopflowActualLabel: 'Yes — Valuable',
+    shopflowActualExplain: 'The dashboard directly helps ShopFlow retain customers and run more targeted promotions. For a small e-commerce company competing against larger players, knowing who your best customers are and what they buy is genuinely valuable.',
+    whyYes: { q: 'What makes it valuable?', options: ['It directly supports how we compete against rivals','It improves something we must do well to succeed','Both of the above'] },
+    whyNo: { q: 'Why doesn\'t it create clear value?', options: ['It answers questions nobody is really asking','It\'s not connected to any strategic priority','I\'m not sure what it was built to do'] },
+    feedbackYes: 'A valuable analytics capability is the starting point. Value is necessary, but on its own it doesn\'t create lasting advantage. A capability can be valuable and still be easy for competitors to copy.',
+    feedbackNo: 'If an analytics capability doesn\'t create clear value, the other VRIO criteria don\'t matter. The first question to ask before building any analytics tool is: what decision will this improve?'
+  },
+  R: {
+    label: 'Rare',
+    question: 'Do most competitors lack this specific capability?',
+    helper: 'Rare doesn\'t mean unique. It means most competitors don\'t have it, or don\'t have it in the same combination.',
+    shopflowContext: 'Purchase history tracking is a standard feature built into nearly every e-commerce platform — Shopify, WooCommerce, BigCommerce, and others all include it out of the box.',
+    shopflowActual: 'no',
+    shopflowActualLabel: 'No — Not Rare',
+    shopflowActualExplain: 'Any e-commerce competitor using a standard platform has access to the same purchase history data. There\'s nothing proprietary about what ShopFlow is tracking or how they\'re tracking it.',
+    whyYes: { q: 'What makes it rare?', options: ['Competitors don\'t have access to our data','We\'ve built something proprietary that can\'t be bought off the shelf','Our combination of tools and processes is hard to replicate'] },
+    whyNo: { q: 'Why isn\'t it rare?', options: ['Competitors use the same or similar tools','It\'s built on software anyone can license','It\'s standard practice in our industry'] },
+    feedbackYes: 'Rarity is a meaningful signal. If most competitors lack this capability, you have a potential source of advantage. The next question is whether that rarity can be sustained.',
+    feedbackNo: 'A capability that most competitors already have is table stakes, not a source of advantage. That doesn\'t mean it\'s not worth having — you need table stakes to compete — but it won\'t differentiate you.'
+  },
+  I: {
+    label: 'Inimitable',
+    question: 'Would it be difficult or costly for a competitor to copy this capability?',
+    helper: 'Think about what it would take for a well-resourced competitor to replicate what you have. Would it take years? Unique data? Cultural change? Or could they sign up for the same software and catch up quickly?',
+    shopflowContext: 'Because the dashboard is built on standard platform features, a competitor could replicate ShopFlow\'s setup in a matter of days by signing up for the same e-commerce platform.',
+    shopflowActual: 'no',
+    shopflowActualLabel: 'No — Not Inimitable',
+    shopflowActualExplain: 'There\'s no proprietary data, no unique methodology, and no years of accumulated learning baked into this tool. The barrier to replication is essentially zero for any competitor with a basic e-commerce setup.',
+    whyYes: { q: 'What makes it hard to copy?', options: ['It\'s built on proprietary data competitors don\'t have access to','It\'s deeply embedded in our culture and workflows','It\'s been improving for years and has a significant head start'] },
+    whyNo: { q: 'Why could a competitor copy it?', options: ['It\'s built on software anyone can buy','The data it uses isn\'t unique to us','A well-funded competitor could replicate it within a year'] },
+    feedbackYes: 'Inimitability is where real competitive advantage comes from. If a competitor would need years, unique assets, or deep cultural change to replicate what you have, you have something genuinely defensible.',
+    feedbackNo: 'If a competitor can replicate your capability quickly, any advantage it creates will be temporary. This suggests your analytics strategy should focus on building toward capabilities that are harder to copy — like proprietary data or embedded processes.'
+  },
+  O: {
+    label: 'Organized',
+    question: 'Is your organization set up to actually use this capability well?',
+    helper: 'A great analytics tool is only as good as the organization\'s ability to act on what it produces. Think about whether the right people have access, understand the outputs, and have the authority to act on them.',
+    shopflowContext: 'ShopFlow\'s marketing team consults the dashboard regularly when planning campaigns. They\'ve built their promotion calendar around the customer segments it surfaces.',
+    shopflowActual: 'yes',
+    shopflowActualLabel: 'Yes — Organized',
+    shopflowActualExplain: 'ShopFlow is actually using this tool well. The marketing team has integrated it into their workflow and makes real decisions based on its outputs. Being organized to exploit a capability is harder than it sounds — many organizations have useful tools that nobody actually uses.',
+    whyYes: { q: 'What does "organized to use it" look like in your case?', options: ['Decision-makers regularly consult and act on the outputs','It\'s embedded in existing workflows','There\'s strong data literacy among the people who use it'] },
+    whyNo: { q: 'What\'s getting in the way?', options: ['The outputs don\'t reach the people who need to act on them','Users don\'t have the skills to interpret the results','The tool exists but hasn\'t been integrated into how decisions are made'] },
+    feedbackYes: 'Being organized to exploit a capability is often the hardest part — and the most underrated. Many organizations have valuable analytics assets that never create advantage because the organizational infrastructure to use them isn\'t in place.',
+    feedbackNo: 'A capability that exists but isn\'t embedded in decision-making is essentially decorative. Before investing further in the tool itself, it\'s worth asking what would need to change organizationally for it to be used the way it was intended.'
+  }
+};
+
+var resultMap = {
+  'YYYY': { name:'Sustained Analytics Advantage', color:'#1E556E', bg:'#C6EFFC', desc:'This capability clears all four VRIO tests. It creates value, competitors lack it, it\'s hard to replicate, and your organization is set up to exploit it fully. That\'s a genuinely rare combination and the foundation of lasting competitive advantage through analytics.', implication:'Protect and invest in this capability. The priority now is keeping it inimitable — continuing to build proprietary data, deepen organizational integration, and widen the gap before competitors catch up.' },
+  'YYYN': { name:'Unrealized Potential', color:'#297496', bg:'#C4E4ED', desc:'This capability is valuable, rare, and hard to copy — but the organization isn\'t fully set up to exploit it yet. The competitive potential is there; the organizational infrastructure to realize it isn\'t.', implication:'The analytics strategy question here isn\'t about building better tools — it\'s about building the organizational capability to use the tools you already have. Workflow integration, data literacy, and change management are the priority.' },
+  'YYNY': { name:'Temporary Advantage', color:'#297496', bg:'#C4E4ED', desc:'This capability creates value and isn\'t widely available yet — but it can be copied. Any advantage it creates will erode as competitors invest in similar capabilities. You\'re ahead for now, but the clock is running.', implication:'Use the time your current advantage buys to build toward something harder to replicate. Proprietary data collection, deeper workflow integration, and compounding learning systems are the directions worth investing in.' },
+  'YYNN': { name:'Temporary Advantage', color:'#297496', bg:'#C4E4ED', desc:'This capability creates value and isn\'t widely available yet — but it can be copied and the organization isn\'t fully exploiting it. You\'re in a race against time on two fronts.', implication:'Address organizational readiness first, then shift investment toward building inimitability. A capability that\'s rare but not embedded and not defensible needs work on both fronts.' },
+  'YNYY': { name:'Competitive Parity', color:'#b3b6b7', bg:'#E5E4E4', desc:'This capability creates value — but so does your competitors\'. It\'s widely available, easy to replicate, and your organization uses it well. That\'s table stakes: necessary to compete, but not a source of advantage.', implication:'Keep it running well, but don\'t expect it to differentiate you. Analytics investment should focus on building capabilities that are harder to copy.' },
+  'YNYN': { name:'Competitive Parity', color:'#b3b6b7', bg:'#E5E4E4', desc:'This capability is valuable but neither rare nor fully exploited. It\'s a common tool used incompletely — which means you\'re not even getting the table-stakes value out of it yet.', implication:'Before looking for new analytics investments, focus on getting full value from what you already have. Organizational readiness often matters more than capability sophistication.' },
+  'YNNY': { name:'Competitive Parity', color:'#b3b6b7', bg:'#E5E4E4', desc:'This capability is valuable and hard to copy — but competitors already have it. Inimitability without rarity means you\'ve built something sophisticated that the market has already caught up to.', implication:'Focus future investment on areas where you can establish rarity first, then build inimitability around it.' },
+  'YNNN': { name:'Competitive Parity', color:'#b3b6b7', bg:'#E5E4E4', desc:'This capability has value, but it\'s widely available, easy to replicate, and not fully exploited. It\'s the most common pattern in analytics portfolios — useful, but not strategic.', implication:'This is a signal to rethink analytics investment priorities. The goal isn\'t to abandon this capability — it\'s to identify where you could build something that clears more of the VRIO tests.' },
+  'N': { name:'Misaligned Investment', color:'#922E1F', bg:'#f5e8e6', desc:'If an analytics capability doesn\'t create value, the other VRIO criteria don\'t matter. A rare, inimitable capability that nobody benefits from is still a wasted investment.', implication:'Before investing further, go back to the first question: what decision was this capability built to improve, and is it improving it? If the answer isn\'t clear, that\'s the problem to solve — not the technology.' }
+};
+
+function getResultKey(a) {
+  if (a.V==='no') return 'N';
+  return (a.V==='yes'?'Y':'N')+(a.R==='yes'?'Y':'N')+(a.I==='yes'?'Y':'N')+(a.O==='yes'?'Y':'N');
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnOwn').style.borderColor = m==='own'?'#297496':'#62b6d0';
+  document.getElementById('btnOwn').style.background = m==='own'?'#C6EFFC':'#f5f9fb';
+  document.getElementById('btnShop').style.borderColor = m==='shopflow'?'#297496':'#62b6d0';
+  document.getElementById('btnShop').style.background = m==='shopflow'?'#C6EFFC':'#f5f9fb';
+  document.getElementById('modeToggleWrap').style.display='none';
+  document.getElementById('backWrap').style.display='block';
+  document.getElementById('screen-name').style.display='block';
+
+  var sel = document.getElementById('capabilitySelect');
+  sel.innerHTML='<option value="">-- Select one --</option>';
+
+  if (m==='own') {
+    document.getElementById('namePrompt').textContent='Which analytics capability will you evaluate?';
+    document.getElementById('nameHelper').textContent='Pick the single most important analytics capability your organization relies on — a model, dataset, reporting system, or analytical process that would be hard to replace.';
+    document.getElementById('shopflowContext').style.display='none';
+    document.getElementById('capabilitySelect').style.display='block';
+    document.getElementById('beginBtn').style.display='none';
+    ownCapabilities.forEach(function(c){ sel.innerHTML+='<option>'+c+'</option>'; });
+  } else {
+    capability='Customer purchase history dashboard';
+    document.getElementById('namePrompt').textContent='You\'ll evaluate one ShopFlow analytics capability.';
+    document.getElementById('nameHelper').textContent='You\'ll answer each VRIO question yourself, then see how ShopFlow actually scores.';
+    document.getElementById('shopflowContext').style.display='block';
+    document.getElementById('shopflowContext').innerHTML='<strong style="display:block;margin-bottom:6px;color:#297496;">About ShopFlow</strong>ShopFlow is a small e-commerce company selling home goods online. They compete against larger retailers by focusing on a curated product selection and strong customer service. Their marketing team relies on a customer purchase history dashboard to plan promotions and email campaigns.<br><br><strong style="color:#297496;">Capability you\'ll evaluate:</strong> Customer purchase history dashboard';
+    document.getElementById('capabilitySelect').style.display='none';
+    document.getElementById('beginBtn').style.display='inline-block';
+  }
+}
+
+document.getElementById('capabilitySelect').addEventListener('change', function() {
+  capability = this.value;
+  document.getElementById('beginBtn').style.display = this.value ? 'inline-block' : 'none';
+});
+
+function beginVRIO() {
+  document.getElementById('screen-name').style.display='none';
+  currentCriterion=0; answers={}; currentYesNo=null; currentWhy=null;
+  showQuestion();
+}
+
+function showQuestion() {
+  var c = criteria[currentCriterion];
+  var d = criteriaData[c];
+  document.getElementById('screen-question').style.display='block';
+  document.getElementById('criterionLabel').textContent='Criterion '+(currentCriterion+1)+' of 4: '+d.label;
+  document.getElementById('capabilityTag').textContent=capability;
+  document.getElementById('questionText').textContent=d.question;
+  document.getElementById('questionHelper').textContent=d.helper;
+
+  if (mode==='shopflow') {
+    document.getElementById('shopflowQuestionContext').style.display='block';
+    document.getElementById('shopflowQuestionContext').innerHTML='<strong style="display:block;margin-bottom:6px;color:#297496;">Context</strong>'+d.shopflowContext;
+  } else {
+    document.getElementById('shopflowQuestionContext').style.display='none';
+  }
+
+  currentYesNo=null; currentWhy=null;
+  ['btnYes','btnNo'].forEach(function(id){
+    var b=document.getElementById(id);
+    b.style.background='#f5f9fb'; b.style.color='#1E556E'; b.style.borderColor='#62b6d0';
+  });
+  document.getElementById('whyPanel').style.display='none';
+  document.getElementById('seeCriterionFeedback').style.display='none';
+  updateProgress();
+}
+
+function answerYesNo(val, btn) {
+  currentYesNo=val;
+  var other=document.getElementById(val==='yes'?'btnNo':'btnYes');
+  btn.style.background='#297496'; btn.style.color='#fff'; btn.style.borderColor='#297496';
+  other.style.background='#f5f9fb'; other.style.color='#1E556E'; other.style.borderColor='#62b6d0';
+
+  var d=criteriaData[criteria[currentCriterion]];
+  var whyData=val==='yes'?d.whyYes:d.whyNo;
+  document.getElementById('whyQuestion').textContent=whyData.q;
+  var btnsDiv=document.getElementById('whyBtns');
+  btnsDiv.innerHTML='';
+  whyData.options.forEach(function(opt){
+    var b=document.createElement('button');
+    b.textContent=opt;
+    b.style.cssText='padding:10px 14px;border:1px solid #62b6d0;border-radius:4px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;';
+    b.onclick=function(){
+      btnsDiv.querySelectorAll('button').forEach(function(x){ x.style.background='#f5f9fb'; x.style.color='#1E556E'; x.style.borderColor='#62b6d0'; });
+      b.style.background='#297496'; b.style.color='#fff'; b.style.borderColor='#297496';
+      currentWhy=opt;
+      document.getElementById('seeCriterionFeedback').style.display='inline-block';
+    };
+    btnsDiv.appendChild(b);
+  });
+  document.getElementById('whyPanel').style.display='block';
+  document.getElementById('seeCriterionFeedback').style.display='none';
+}
+
+function showCriterionFeedback() {
+  var c=criteria[currentCriterion];
+  var d=criteriaData[c];
+  answers[c]=currentYesNo;
+
+  document.getElementById('screen-question').style.display='none';
+  document.getElementById('screen-criterion-feedback').style.display='block';
+  document.getElementById('cfCriterionLabel').textContent='Criterion '+(currentCriterion+1)+' of 4: '+d.label;
+  document.getElementById('cfCapabilityTag').textContent=capability;
+
+  var isYes=currentYesNo==='yes';
+  var borderColor=isYes?'#1E556E':'#922E1F';
+  var fb=document.getElementById('cfFeedbackBox');
+  fb.style.borderLeftColor=borderColor;
+  fb.innerHTML='<p style="margin:0 0 6px;font-weight:bold;color:'+borderColor+';">'+(isYes?'Yes':'No')+'</p>'+
+    '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+(isYes?d.feedbackYes:d.feedbackNo)+'</p>';
+
+  var shopComp=document.getElementById('shopflowComparison');
+  if (mode==='shopflow') {
+    shopComp.style.display='block';
+    var shopYes=d.shopflowActual==='yes';
+    var badgeColor=shopYes?'#1E556E':'#922E1F';
+    var badgeBg=shopYes?'#C6EFFC':'#f5e8e6';
+    document.getElementById('shopActualBadge').textContent=d.shopflowActualLabel;
+    document.getElementById('shopActualBadge').style.background=badgeBg;
+    document.getElementById('shopActualBadge').style.color=badgeColor;
+    document.getElementById('shopActualMatch').textContent=(currentYesNo===d.shopflowActual)?'Your assessment matched.':'Your assessment differed.';
+    document.getElementById('shopActualExplain').textContent=d.shopflowActualExplain;
+  } else {
+    shopComp.style.display='none';
+  }
+
+  var isLast=currentCriterion===3;
+  document.getElementById('nextCriterionBtn').textContent=isLast?'See My Result':'Next Criterion';
+  updateProgress();
+}
+
+function nextCriterion() {
+  document.getElementById('screen-criterion-feedback').style.display='none';
+  if (currentCriterion===3){ showResult(); return; }
+  currentCriterion++;
+  showQuestion();
+}
+
+function showResult() {
+  document.getElementById('screen-result').style.display='block';
+  document.getElementById('progressBar').style.width='100%';
+  document.getElementById('progressPct').textContent='100%';
+  document.getElementById('progressLabel').textContent='Complete';
+  document.getElementById('resultCapabilityTag').textContent=capability;
+
+  var key=getResultKey(answers);
+  var r=resultMap[key]||resultMap['YNNN'];
+
+  var grid=document.getElementById('resultGrid');
+  grid.innerHTML='';
+  criteria.forEach(function(c){
+    var isYes=answers[c]==='yes';
+    var bg=isYes?'#C6EFFC':'#f5e8e6';
+    var col=isYes?'#1E556E':'#922E1F';
+    grid.innerHTML+='<div style="background:'+bg+';border-radius:4px;padding:10px 12px;text-align:center;">'+
+      '<p style="margin:0 0 4px;font-size:9pt;font-weight:bold;color:'+col+';">'+criteriaData[c].label+'</p>'+
+      '<p style="margin:0;font-size:11pt;font-weight:bold;color:'+col+';">'+(isYes?'Yes':'No')+'</p></div>';
+  });
+
+  var rc=document.getElementById('resultCard');
+  rc.style.borderLeftColor=r.color;
+  rc.style.background=r.bg;
+  rc.innerHTML='<p style="margin:0 0 6px;font-size:13pt;font-weight:bold;color:'+r.color+';">'+r.name+'</p>'+
+    '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+r.desc+'</p>';
+
+  if (mode==='shopflow') document.getElementById('shopflowFinalComparison').style.display='block';
+
+  document.getElementById('strategyImplication').innerHTML=
+    '<p style="margin:0 0 6px;font-size:10pt;font-weight:bold;color:#297496;">What this means for your analytics strategy</p>'+
+    '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+r.implication+'</p>';
+}
+
+function updateProgress() {
+  var pct=Math.round((currentCriterion/4)*100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressLabel').textContent='Step '+(currentCriterion+1)+' of 4';
+}
+
+function goBack() {
+  mode=null; capability=''; answers={}; currentCriterion=0; currentYesNo=null; currentWhy=null;
+  ['screen-name','screen-question','screen-criterion-feedback','screen-result'].forEach(function(id){
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('modeToggleWrap').style.display='block';
+  document.getElementById('backWrap').style.display='none';
+  ['btnOwn','btnShop'].forEach(function(id){
+    document.getElementById(id).style.borderColor='#62b6d0';
+    document.getElementById(id).style.background='#f5f9fb';
+  });
+  document.getElementById('capabilitySelect').value='';
+  document.getElementById('beginBtn').style.display='none';
+  document.getElementById('progressBar').style.width='0%';
+  document.getElementById('progressPct').textContent='0%';
+  document.getElementById('progressLabel').textContent='Step 1 of 4';
+}
+</script>
+
+</div>
+</body>
+</html>
