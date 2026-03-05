@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Horizons Roadmap</title>
+</head>
+<body style="margin:0;padding:0;font-family:Georgia,serif;background:#f5f9fb;color:#1E556E;">
+
+<div id="dp-wrapper" class="dp-wrapper">
+  <p class="dp-progress-placeholder dp-module-progress-completion" style="display:none;margin-top:12px;padding-top:5px;">Module Item Completion (browser only)</p>
+  <div>
+
+    <!-- Progress Bar -->
+    <div style="padding:20px 24px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:10pt;color:#297496;" id="progressLabel">Horizon 1 of 3</span>
+        <span style="font-size:10pt;color:#297496;" id="progressPct">0%</span>
+      </div>
+      <div style="background:#E5E4E4;border-radius:4px;height:8px;">
+        <div id="progressBar" style="background:#62b6d0;height:8px;border-radius:4px;width:0%;transition:width 0.4s;"></div>
+      </div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div id="modeToggleWrap" style="padding:16px 24px 0;max-width:720px;margin:0 auto;">
+      <div style="background:#fff;border-radius:8px;padding:18px 24px;box-shadow:0 2px 8px rgba(41,116,150,0.08);">
+        <p style="margin:0 0 12px;font-size:10.5pt;color:#1E556E;font-weight:bold;">Choose your mode:</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button id="btnOwn" onclick="setMode('own')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use my own organization</strong>
+            <span style="font-size:9.5pt;color:#297496;">Build a roadmap for a real organization</span>
+          </button>
+          <button id="btnShop" onclick="setMode('shopflow')" style="flex:1;min-width:200px;padding:12px 16px;border:2px solid #62b6d0;border-radius:6px;background:#f5f9fb;color:#1E556E;font-size:10pt;cursor:pointer;text-align:left;">
+            <strong style="display:block;margin-bottom:4px;">Use the ShopFlow example</strong>
+            <span style="font-size:9.5pt;color:#297496;">Build a roadmap for ShopFlow and see a recommended answer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back button -->
+    <div id="backWrap" style="display:none;padding:8px 24px 0;max-width:720px;margin:0 auto;">
+      <button onclick="goBack()" style="background:#fff;border:1px solid #62b6d0;color:#297496;font-size:10pt;cursor:pointer;padding:8px 16px;border-radius:4px;">&#8592; Change mode</button>
+    </div>
+
+    <!-- Horizon screen -->
+    <div id="screen-horizon" style="display:none;padding:16px 24px 0;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto 24px;">
+        <div id="horizonBadge" style="display:inline-block;padding:4px 14px;border-radius:12px;font-size:9.5pt;font-weight:bold;margin-bottom:12px;"></div>
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 6px;" id="horizonTitle"></h3>
+        <p style="font-size:9.5pt;color:#297496;margin:0 0 18px;" id="horizonDesc"></p>
+        <div id="shopflowHorizonContext" style="display:none;border-left:4px solid #62b6d0;padding:12px 16px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:20px;font-size:10pt;color:#1E556E;"></div>
+
+        <!-- Field 1 -->
+        <div style="margin-bottom:18px;">
+          <label style="font-size:10.5pt;color:#1E556E;font-weight:bold;display:block;margin-bottom:4px;">What is the initiative?</label>
+          <p id="f1helper" style="font-size:9.5pt;color:#297496;margin:0 0 8px;display:none;"></p>
+          <select id="f1select" onchange="handleF1Change()" style="width:100%;padding:10px 12px;font-size:10pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;">
+            <option value="">-- Select one --</option>
+          </select>
+          <input type="text" id="f1other" placeholder="Describe your initiative..." oninput="checkFields()" style="display:none;width:100%;padding:10px 12px;font-size:10pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;margin-top:8px;box-sizing:border-box;">
+          <div id="f1static" style="display:none;padding:10px 14px;background:#f5f9fb;border:1px solid #62b6d0;border-radius:4px;font-size:10pt;color:#1E556E;"></div>
+        </div>
+
+        <!-- Field 2 -->
+        <div style="margin-bottom:18px;">
+          <label style="font-size:10.5pt;color:#1E556E;font-weight:bold;display:block;margin-bottom:4px;">What business objective does it support?</label>
+          <p style="font-size:9.5pt;color:#297496;margin:0 0 8px;">Think about the strategic goal this initiative moves forward — not the technical output, but the business outcome.</p>
+          <select id="f2select" onchange="checkFields()" style="width:100%;padding:10px 12px;font-size:10pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;">
+            <option value="">-- Select one --</option>
+            <option>Improve customer retention</option>
+            <option>Grow revenue from existing customers</option>
+            <option>Acquire new customers more efficiently</option>
+            <option>Reduce operational costs</option>
+            <option>Improve product or service quality</option>
+            <option>Strengthen competitive positioning</option>
+            <option>Build a long-term data asset</option>
+          </select>
+        </div>
+
+        <!-- Field 3 -->
+        <div style="margin-bottom:18px;">
+          <label style="font-size:10.5pt;color:#1E556E;font-weight:bold;display:block;margin-bottom:4px;">Which critical success factor does it improve?</label>
+          <p style="font-size:9.5pt;color:#297496;margin:0 0 8px;">What must your organization do exceptionally well to execute its strategy? Pick the factor this initiative most directly improves.</p>
+          <select id="f3select" onchange="checkFields()" style="width:100%;padding:10px 12px;font-size:10pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;">
+            <option value="">-- Select one --</option>
+            <option>Knowing which customers are most valuable</option>
+            <option>Making faster, better-informed decisions</option>
+            <option>Delivering a personalized customer experience</option>
+            <option>Operating more efficiently than competitors</option>
+            <option>Anticipating demand and reducing waste</option>
+            <option>Building capabilities competitors can't easily copy</option>
+            <option>Developing organization-wide data literacy</option>
+          </select>
+        </div>
+
+        <!-- Field 4 -->
+        <div style="margin-bottom:24px;">
+          <label style="font-size:10.5pt;color:#1E556E;font-weight:bold;display:block;margin-bottom:4px;">What is the biggest implementation obstacle?</label>
+          <p style="font-size:9.5pt;color:#297496;margin:0 0 8px;">Be honest. What is most likely to prevent this initiative from delivering its intended value?</p>
+          <select id="f4select" onchange="checkFields()" style="width:100%;padding:10px 12px;font-size:10pt;border:1px solid #62b6d0;border-radius:4px;color:#1E556E;background:#f5f9fb;">
+            <option value="">-- Select one --</option>
+            <option>Lack of executive sponsorship</option>
+            <option>Low user trust in analytics outputs</option>
+            <option>Poor workflow integration</option>
+            <option>Insufficient data literacy among users</option>
+            <option>Organizational resistance to change</option>
+            <option>Data quality or availability issues</option>
+            <option>Budget or resource constraints</option>
+            <option>Technical complexity of the build</option>
+          </select>
+        </div>
+
+        <button id="seeFeedbackBtn" onclick="showHorizonFeedback()" style="display:none;background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">See Feedback</button>
+      </div>
+    </div>
+
+    <!-- Horizon feedback screen -->
+    <div id="screen-horizon-feedback" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <div id="hfBadge" style="display:inline-block;padding:4px 14px;border-radius:12px;font-size:9.5pt;font-weight:bold;margin-bottom:12px;"></div>
+        <h3 style="font-size:13pt;color:#1E556E;margin:0 0 16px;" id="hfTitle"></h3>
+        <div id="hfSummaryGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;"></div>
+        <div id="hfFeedbackBox" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;margin-bottom:20px;"></div>
+        <div id="shopflowHorizonComparison" style="display:none;border:1px solid #C4E4ED;border-radius:6px;padding:16px;margin-bottom:20px;background:#f5f9fb;"></div>
+        <button onclick="nextHorizon()" id="nextHorizonBtn" style="background:#297496;color:#fff;border:none;padding:12px 28px;border-radius:4px;font-size:10.5pt;cursor:pointer;">Next Horizon</button>
+      </div>
+    </div>
+
+    <!-- Final roadmap screen -->
+    <div id="screen-roadmap" style="display:none;padding:0 24px 24px;">
+      <div style="background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 2px 8px rgba(41,116,150,0.08);max-width:720px;margin:0 auto;">
+        <h3 style="font-size:14pt;color:#1E556E;margin:0 0 4px;">Your Analytics Roadmap</h3>
+        <p style="font-size:10pt;color:#b3b6b7;margin:0 0 24px;" id="roadmapOrgTag"></p>
+        <div id="roadmapGrid" style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;"></div>
+        <div id="closingInsight" style="border-left:4px solid #297496;padding:14px 18px;background:#f5f9fb;border-radius:0 4px 4px 0;font-size:10.5pt;color:#1E556E;"></div>
+      </div>
+    </div>
+
+  </div>
+  <div id="dpCustomCss" data-external-style="/css/style.css">&nbsp;</div>
+</div>
+
+<script>
+var mode = null;
+var currentHorizon = 0;
+var roadmap = [];
+
+var horizonConfig = [
+  {
+    label: 'Horizon 1',
+    title: 'Optimize What You Have (0-6 months)',
+    desc: 'Focus on closing the gap between data you already collect and decisions you already make. Quick improvements to existing tools, reports, or processes.',
+    color: '#1E556E', bg: '#C6EFFC',
+    f1helper: 'Think about an existing analytics tool, dashboard, or report that could be improved or better connected to a decision.',
+    ownOptions: ['Add better KPIs to an existing dashboard','Enrich data fields in a current report','Automate a report that\'s currently built manually','Improve data quality in an existing system','Set up A/B testing for decisions made intuitively','Connect an existing tool to a new data source','Other'],
+    shopflowContext: 'ShopFlow already has a customer purchase history dashboard and a CLV model that isn\'t being used. The Horizon 1 opportunity is to fix what\'s already broken before building something new.',
+    shopflowInit: 'Integrate CLV model outputs into the campaign planning tool',
+    shopflowAnswer: { f2:'Improve customer retention', f3:'Knowing which customers are most valuable', f4:'Poor workflow integration', feedback:'This is exactly the right Horizon 1 move for ShopFlow. The CLV model exists but isn\'t being used because it lives in a separate spreadsheet. Integrating it into the tool the marketing team already uses removes the friction preventing adoption — without requiring any new capability to be built.' },
+    feedbackOwn: 'A strong Horizon 1 initiative targets a gap that already exists — between data you already have and a decision you already make. The fastest wins come from removing friction in existing processes, not building new ones.'
+  },
+  {
+    label: 'Horizon 2',
+    title: 'Build New Capabilities (6-18 months)',
+    desc: 'New analytics initiatives with clear strategic justification. These target your VRIO-validated competitive strengths and critical success factors.',
+    color: '#297496', bg: '#C4E4ED',
+    f1helper: 'Think about a new analytics capability that would meaningfully support your competitive strategy — something that doesn\'t exist yet but has clear strategic justification.',
+    ownOptions: ['Build a customer lifetime value model','Implement demand forecasting','Develop a product recommendation engine','Build a customer churn prediction model','Create a pricing optimization tool','Develop a marketing mix attribution model','Other'],
+    shopflowContext: 'With the CLV model working properly, ShopFlow\'s Horizon 2 opportunity is to use that customer knowledge to deliver more personalized experiences.',
+    shopflowInit: 'Build a product recommendation engine using purchase history data',
+    shopflowAnswer: { f2:'Grow revenue from existing customers', f3:'Delivering a personalized customer experience', f4:'Technical complexity of the build', feedback:'A recommendation engine is a natural Horizon 2 initiative for ShopFlow. It builds on the purchase history data they already have, connects directly to their competitive strategy of serving customers better than larger rivals, and creates value that compounds over time as more data is collected.' },
+    feedbackOwn: 'A strong Horizon 2 initiative has clear strategic justification before it\'s built — not after. It should connect directly to a competitive strength and pass the VRIO test for value at minimum.'
+  },
+  {
+    label: 'Horizon 3',
+    title: 'Transform Through Analytics (18+ months)',
+    desc: 'Long-term investments in proprietary data assets, embedded processes, and analytical culture that create sustainable competitive advantage — the hardest to build and the hardest to copy.',
+    color: '#1E556E', bg: '#E2E3E4',
+    f1helper: 'Think about what "analytics-driven competitive advantage" would actually look like for your organization in three to five years. What would be genuinely hard for competitors to replicate?',
+    ownOptions: ['Build a proprietary first-party data asset','Embed analytics into every customer touchpoint','Develop organization-wide data literacy programs','Build network effects into data collection','Create a compounding learning system','Develop an analytical culture through systematic testing','Other'],
+    shopflowContext: 'ShopFlow\'s long-term analytics challenge is reducing dependence on third-party platforms and building a data asset that competitors can\'t access.',
+    shopflowInit: 'Develop a first-party data strategy that reduces dependence on third-party platforms',
+    shopflowAnswer: { f2:'Build a long-term data asset', f3:'Building capabilities competitors can\'t easily copy', f4:'Budget or resource constraints', feedback:'This is exactly the kind of Horizon 3 thinking that separates companies with lasting analytics advantage from those with temporary gains. A proprietary first-party data asset is valuable, rare, and inimitable — everything a third-party data dependency is not. It takes time and investment to build, which is why it belongs in Horizon 3.' },
+    feedbackOwn: 'A strong Horizon 3 initiative is aimed at building something that passes all four VRIO tests. If a competitor could replicate it within two years, it probably belongs in Horizon 2.'
+  }
+];
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnOwn').style.borderColor = m==='own' ? '#297496' : '#62b6d0';
+  document.getElementById('btnOwn').style.background = m==='own' ? '#C6EFFC' : '#f5f9fb';
+  document.getElementById('btnShop').style.borderColor = m==='shopflow' ? '#297496' : '#62b6d0';
+  document.getElementById('btnShop').style.background = m==='shopflow' ? '#C6EFFC' : '#f5f9fb';
+  document.getElementById('modeToggleWrap').style.display = 'none';
+  document.getElementById('backWrap').style.display = 'block';
+  currentHorizon = 0; roadmap = [];
+  showHorizon();
+}
+
+function showHorizon() {
+  var h = horizonConfig[currentHorizon];
+  document.getElementById('screen-horizon').style.display = 'block';
+  document.getElementById('screen-horizon-feedback').style.display = 'none';
+
+  var badge = document.getElementById('horizonBadge');
+  badge.textContent = h.label + ' — ' + h.title.split('(')[0].trim();
+  badge.style.background = h.bg;
+  badge.style.color = h.color;
+
+  document.getElementById('horizonTitle').textContent = 'What\'s your ' + h.label + ' initiative?';
+  document.getElementById('horizonDesc').textContent = h.desc;
+
+  var f1sel = document.getElementById('f1select');
+  f1sel.innerHTML = '<option value="">-- Select one --</option>';
+  document.getElementById('f1other').style.display = 'none';
+  document.getElementById('f1other').value = '';
+
+  if (mode === 'shopflow') {
+    f1sel.style.display = 'none';
+    document.getElementById('f1static').style.display = 'block';
+    document.getElementById('f1static').textContent = h.shopflowInit;
+    document.getElementById('f1helper').style.display = 'none';
+    document.getElementById('shopflowHorizonContext').style.display = 'block';
+    document.getElementById('shopflowHorizonContext').innerHTML = '<strong style="display:block;margin-bottom:6px;color:#297496;">ShopFlow context</strong>' + h.shopflowContext;
+  } else {
+    f1sel.style.display = 'block';
+    document.getElementById('f1static').style.display = 'none';
+    document.getElementById('f1helper').style.display = 'block';
+    document.getElementById('f1helper').textContent = h.f1helper;
+    document.getElementById('shopflowHorizonContext').style.display = 'none';
+    h.ownOptions.forEach(function(o) { f1sel.innerHTML += '<option>' + o + '</option>'; });
+  }
+
+  ['f2select','f3select','f4select'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+
+  document.getElementById('seeFeedbackBtn').style.display = 'none';
+  updateProgress();
+
+  // In ShopFlow mode f1 is already set so check fields immediately
+  if (mode === 'shopflow') checkFields();
+}
+
+function handleF1Change() {
+  var val = document.getElementById('f1select').value;
+  document.getElementById('f1other').style.display = val === 'Other' ? 'block' : 'none';
+  if (val !== 'Other') document.getElementById('f1other').value = '';
+  checkFields();
+}
+
+function getF1Value() {
+  if (mode === 'shopflow') return horizonConfig[currentHorizon].shopflowInit;
+  var sel = document.getElementById('f1select').value;
+  if (sel === 'Other') return document.getElementById('f1other').value.trim();
+  return sel;
+}
+
+function checkFields() {
+  var f1ok;
+  if (mode === 'shopflow') {
+    f1ok = true;
+  } else {
+    var f1val = document.getElementById('f1select').value;
+    f1ok = f1val !== '' && (f1val !== 'Other' || document.getElementById('f1other').value.trim() !== '');
+  }
+  var rest = ['f2select','f3select','f4select'].every(function(id) {
+    return document.getElementById(id).value !== '';
+  });
+  document.getElementById('seeFeedbackBtn').style.display = (f1ok && rest) ? 'inline-block' : 'none';
+}
+
+function showHorizonFeedback() {
+  var h = horizonConfig[currentHorizon];
+  var entry = {
+    horizon: h.label, title: h.title, color: h.color, bg: h.bg,
+    f1: getF1Value(),
+    f2: document.getElementById('f2select').value,
+    f3: document.getElementById('f3select').value,
+    f4: document.getElementById('f4select').value
+  };
+  roadmap.push(entry);
+
+  document.getElementById('screen-horizon').style.display = 'none';
+  document.getElementById('screen-horizon-feedback').style.display = 'block';
+
+  var badge = document.getElementById('hfBadge');
+  badge.textContent = h.label;
+  badge.style.background = h.bg;
+  badge.style.color = h.color;
+  document.getElementById('hfTitle').textContent = entry.f1;
+
+  var grid = document.getElementById('hfSummaryGrid');
+  var fields = [
+    {label:'Business objective', val:entry.f2},
+    {label:'Critical success factor', val:entry.f3},
+    {label:'Implementation obstacle', val:entry.f4}
+  ];
+  grid.innerHTML = '';
+  fields.forEach(function(f) {
+    grid.innerHTML += '<div style="background:#f5f9fb;border-radius:4px;padding:10px 12px;">'+
+      '<p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">'+f.label+'</p>'+
+      '<p style="margin:0;font-size:10pt;color:#1E556E;">'+f.val+'</p></div>';
+  });
+
+  var fb = document.getElementById('hfFeedbackBox');
+  fb.style.borderLeftColor = h.color;
+  fb.innerHTML = '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+(mode==='shopflow' ? h.shopflowAnswer.feedback : h.feedbackOwn)+'</p>';
+
+  var shopComp = document.getElementById('shopflowHorizonComparison');
+  if (mode === 'shopflow') {
+    var sa = h.shopflowAnswer;
+    shopComp.style.display = 'block';
+    shopComp.innerHTML = '<p style="margin:0 0 10px;font-size:10pt;font-weight:bold;color:#297496;">Recommended answer for ShopFlow:</p>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+      '<div style="background:#fff;border-radius:4px;padding:10px 12px;border:1px solid #C4E4ED;"><p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">Business objective</p><p style="margin:0;font-size:10pt;color:#1E556E;">'+sa.f2+'</p></div>'+
+      '<div style="background:#fff;border-radius:4px;padding:10px 12px;border:1px solid #C4E4ED;"><p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">Critical success factor</p><p style="margin:0;font-size:10pt;color:#1E556E;">'+sa.f3+'</p></div>'+
+      '<div style="background:#fff;border-radius:4px;padding:10px 12px;border:1px solid #C4E4ED;grid-column:1/-1;"><p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">Implementation obstacle</p><p style="margin:0;font-size:10pt;color:#1E556E;">'+sa.f4+'</p></div></div>';
+  } else {
+    shopComp.style.display = 'none';
+  }
+
+  document.getElementById('nextHorizonBtn').textContent = currentHorizon === 2 ? 'See My Roadmap' : 'Next Horizon';
+  updateProgress();
+}
+
+function nextHorizon() {
+  document.getElementById('screen-horizon-feedback').style.display = 'none';
+  if (currentHorizon === 2) { showRoadmap(); return; }
+  currentHorizon++;
+  showHorizon();
+}
+
+function showRoadmap() {
+  document.getElementById('screen-roadmap').style.display = 'block';
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('progressPct').textContent = '100%';
+  document.getElementById('progressLabel').textContent = 'Complete';
+  document.getElementById('roadmapOrgTag').textContent = mode === 'shopflow' ? 'ShopFlow — Analytics Roadmap' : 'Your Analytics Roadmap';
+
+  var grid = document.getElementById('roadmapGrid');
+  grid.innerHTML = '';
+  roadmap.forEach(function(r) {
+    grid.innerHTML +=
+      '<div style="border-radius:8px;overflow:hidden;border:1px solid #C4E4ED;">'+
+        '<div style="background:'+r.bg+';padding:12px 16px;border-bottom:1px solid #C4E4ED;">'+
+          '<p style="margin:0 0 2px;font-size:9.5pt;font-weight:bold;color:'+r.color+';">'+r.horizon+' — '+r.title+'</p>'+
+          '<p style="margin:0;font-size:11pt;font-weight:bold;color:'+r.color+';">'+r.f1+'</p>'+
+        '</div>'+
+        '<div style="background:#fff;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+
+          '<div><p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">Business objective</p><p style="margin:0;font-size:10pt;color:#1E556E;">'+r.f2+'</p></div>'+
+          '<div><p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">Critical success factor</p><p style="margin:0;font-size:10pt;color:#1E556E;">'+r.f3+'</p></div>'+
+          '<div style="grid-column:1/-1;"><p style="margin:0 0 3px;font-size:9pt;color:#297496;font-weight:bold;">Biggest implementation obstacle</p><p style="margin:0;font-size:10pt;color:#1E556E;">'+r.f4+'</p></div>'+
+        '</div>'+
+      '</div>';
+  });
+
+  var insight = mode === 'shopflow'
+    ? 'ShopFlow\'s roadmap moves from fixing what\'s broken (Horizon 1) to building new capability on a working foundation (Horizon 2) to creating something competitors genuinely can\'t copy (Horizon 3). Each horizon funds and informs the next. That\'s how lasting analytics advantage gets built — not in a single investment, but through accumulated learning over time.'
+    : 'This is your starting point. The best analytics roadmaps aren\'t built in planning sessions — they\'re built through accumulated learning from Horizon 1 experiments that inform Horizon 2 investments that eventually fund Horizon 3 transformations. The obstacles you\'ve identified are the work that comes next.';
+
+  document.getElementById('closingInsight').innerHTML = '<p style="margin:0;font-size:10.5pt;color:#1E556E;">'+insight+'</p>';
+}
+
+function updateProgress() {
+  var pct = Math.round((currentHorizon / 3) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressLabel').textContent = 'Horizon ' + (currentHorizon + 1) + ' of 3';
+}
+
+function goBack() {
+  mode = null; currentHorizon = 0; roadmap = [];
+  ['screen-horizon','screen-horizon-feedback','screen-roadmap'].forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('modeToggleWrap').style.display = 'block';
+  document.getElementById('backWrap').style.display = 'none';
+  ['btnOwn','btnShop'].forEach(function(id) {
+    document.getElementById(id).style.borderColor = '#62b6d0';
+    document.getElementById(id).style.background = '#f5f9fb';
+  });
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+  document.getElementById('progressLabel').textContent = 'Horizon 1 of 3';
+}
+</script>
+
+</div>
+</body>
+</html>
